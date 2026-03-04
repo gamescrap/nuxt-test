@@ -1,8 +1,19 @@
-// https://nuxt.com/docs/api/configuration/nuxt-config
+
 export default defineNuxtConfig({
   compatibilityDate: '2025-07-15',
   devtools: { enabled: true },
+  ssr: true,
+
+  runtimeConfig: {
+    apiBaseUrl: 'http://host.docker.internal:8080',
+    public: {
+      apiBase: '/api',
+    },
+  },
+
   nitro: {
-    preset: 'node-server'
-  }
+    routeRules: {
+      '/.well-known/**': { redirect: { to: '/', statusCode: 301 } },
+    },
+  },
 })

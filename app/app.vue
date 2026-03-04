@@ -1,5 +1,3 @@
 <template>
-  <div>
-    <AppTitle text="Mon application Nuxt" />
-  </div>
+  <NuxtPage />
 </template>
