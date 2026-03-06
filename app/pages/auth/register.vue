@@ -1,7 +1,7 @@
 <script setup lang="ts">
-const { isAuthenticated, register } = useAuth()
+const { register } = useAuth()
 
-if (isAuthenticated.value) await navigateTo('/')
+definePageMeta({ middleware: 'guest' })
 
 const form = reactive({ email: '', password: '', confirmPassword: '' })
 const error = ref('')
@@ -9,7 +9,6 @@ const validationErrors = ref<Record<string, string>>({})
 const loading = ref(false)
 
 const handleSubmit = async () => {
-  console.log('handleSubmit appelé')
   error.value = ''
   validationErrors.value = {}
 
@@ -23,12 +22,8 @@ const handleSubmit = async () => {
     await register(form.email, form.password)
     await navigateTo('/')
   } catch (e: any) {
-    console.error('Erreur reçue dans le composant:', e)
-    if (e?.data?.validationErrors) {
-      validationErrors.value = e.data.validationErrors
-    } else {
-      error.value = e?.data?.message || 'Une erreur est survenue.'
-    }
+    error.value = getErrorMessage(e)
+    validationErrors.value = getValidationErrors(e)
   } finally {
     loading.value = false
   }

@@ -1,5 +1,5 @@
 import {apiFetch} from "#server/utils/api";
-import type {ErrorResponse} from "#shared/types/auth";
+import {handleSpringError} from "#server/utils/errors";
 
 export default defineEventHandler(async (event) => {
     try {
@@ -16,16 +16,7 @@ export default defineEventHandler(async (event) => {
         return { success: true }
 
     } catch (e: any) {
-        const springError: ErrorResponse = e?.data
-        console.error('Erreur Spring Boot:', JSON.stringify(springError, null, 2))
-
-        throw createError({
-            statusCode: springError?.status || 500,
-            data: {
-                message: springError?.message || 'Erreur lors de la déconnexion',
-                validationErrors: springError?.validationErrors || null,
-            }
-        })
+        handleSpringError(e, 'Erreur lors de la déconnexion')
     } finally {
         deleteCookie(event, 'auth_token')
         deleteCookie(event, 'refresh_token')

@@ -5,7 +5,9 @@ export default defineNuxtConfig({
   ssr: true,
 
   runtimeConfig: {
-    apiBaseUrl: 'http://host.docker.internal:8080',
+    apiBaseUrl: 'http://localhost:8080',
+    accessTokenMaxAge: 60 * 15, // 15 minutes
+    refreshTokenMaxAge: 60 * 60 * 24 * 7, // 7 jours
     public: {
       apiBase: '/api',
     },

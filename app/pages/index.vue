@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import {useAuth} from "~/composables/useAuth";
-
 definePageMeta({ middleware: 'auth' })
 
 const { userId, logout } = useAuth()

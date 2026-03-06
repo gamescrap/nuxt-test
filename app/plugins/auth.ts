@@ -3,9 +3,9 @@ export default defineNuxtPlugin(async () => {
 
     if (userId.value) return
 
-    const data = await $fetch<AuthResponse>('/api/auth/me', {
+    const data = await $fetch<AuthResponse | null>('/api/auth/me', {
         ignoreResponseError: true
-    })
+    }).catch(() => null)
 
     if (data?.userId) {
         userId.value = data.userId

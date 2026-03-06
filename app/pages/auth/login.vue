@@ -1,7 +1,7 @@
 <script setup lang="ts">
-const { isAuthenticated, login } = useAuth()
+const { login } = useAuth()
 
-if (isAuthenticated.value) await navigateTo('/')
+definePageMeta({ middleware: 'guest' })
 
 const form = reactive({ email: '', password: '' })
 const error = ref('')
@@ -14,7 +14,7 @@ const handleSubmit = async () => {
     await login(form.email, form.password)
     await navigateTo('/')
   } catch (e: any) {
-    error.value = e?.data?.message || 'Une erreur est survenue.'
+    error.value = getErrorMessage(e)
   } finally {
     loading.value = false
   }
