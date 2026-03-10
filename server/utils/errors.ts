@@ -1,3 +1,5 @@
+import type {H3Event} from "h3";
+
 export const handleSpringError = (e: any, fallbackMessage = 'Une erreur est survenue.') => {
     const springError: ErrorResponse = e?.data
 
@@ -10,4 +12,42 @@ export const handleSpringError = (e: any, fallbackMessage = 'Une erreur est surv
             validationErrors: springError?.validationErrors || null,
         }
     })
+}
+
+export const withTokenRefresh = async (
+    event: H3Event,
+    request: () => Promise<unknown>
+): Promise<unknown> => {
+    try {
+        return await request()
+
+    } catch (e: any) {
+        // Si ce n'est pas un 401, on propage l'erreur normalement
+        if (e?.response?.status !== 401) {
+            handleSpringError(e)
+        }
+
+        // Tentative de refresh
+        const refreshToken = getCookie(event, 'refresh_token')
+        if (!refreshToken) {
+            throw createError({ status: 401, message: 'Session expirée' })
+        }
+
+        try {
+            const refreshed = await apiFetch<AuthResponse>('/refresh', {
+                method: 'POST',
+                body: { refreshToken },
+            })
+
+            setAuthCookies(event, refreshed.token, refreshed.refreshToken)
+
+            // Relance la requête originale avec le nouveau token
+            return await request()
+
+        } catch {
+            deleteCookie(event, 'auth_token')
+            deleteCookie(event, 'refresh_token')
+            throw createError({ status: 401, message: 'Session expirée, veuillez vous reconnecter' })
+        }
+    }
 }
