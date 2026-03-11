@@ -16,18 +16,12 @@ export default defineEventHandler((event) => {
         decoded = JSON.parse(
             Buffer.from(payload.replace(/-/g, '+').replace(/_/g, '/'), 'base64').toString('utf-8')
         )
-    } catch (e: any) {
+    } catch {
         throw createError({ status: 401, message: 'Token invalide' })
-    }
-
-    const now = Math.floor(Date.now() / 1000)
-    if (decoded.exp < now) {
-        throw createError({ status: 401, message: 'Token expiré' })
     }
 
     return {
         userId: parseInt(decoded.sub),
         roles: decoded.roles,
     }
-
 })

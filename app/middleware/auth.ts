@@ -1,19 +1,21 @@
 export default defineNuxtRouteMiddleware(async () => {
-    const { isAuthenticated, userId, roles } = useAuth()
+    const { storeSession, clearSession, isAuthenticated } = useAuth()
 
     if (isAuthenticated.value) return
+    const fetch = useRequestFetch()
 
     try {
-        const fetchWithRequest = useRequestFetch()
-        const data = await fetchWithRequest<AuthResponse>('/api/auth/me')
-
+        const data = await fetch<AuthResponse>('/api/auth/me')
         if (data?.userId) {
-            userId.value = data.userId
-            roles.value = data.roles
+            storeSession(data)
             return
         }
-    } catch {
-        // Pas de session valide
+    } catch (e: any) {
+        if (e?.status === 401) {
+            const refreshToken = useCookie('refresh_token')
+            if (refreshToken.value) return
+        }
+        clearSession()
     }
 
     return navigateTo('/auth/login')

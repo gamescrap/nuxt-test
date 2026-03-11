@@ -1,47 +1,47 @@
 const useUserId = () => useState<number | null>('userId', () => null)
 const useRoles = () => useState<string[]>('roles', () => [])
+const useAuthRefreshing = () => useState<boolean>('authRefreshing', () => false)
 
 export const useAuth = () => {
     const userId = useUserId()
     const roles = useRoles()
     const isAuthenticated = computed(() => !!userId.value)
+    const isRefreshing = useAuthRefreshing()
 
-    //region Utils
     const _storeSession = (data: AuthResponse) => {
         userId.value = data.userId
         roles.value = data.roles
     }
 
-    const _clearSession = () => {
+    const storeSession = (data: AuthResponse) => _storeSession(data)
+
+    const clearSession = () => {
         userId.value = null
         roles.value = []
     }
-    //endregion
 
-    //region Actions
+    const authFetch = $fetch.create({ credentials: 'include' })
+
     const register = async (email: string, password: string) => {
-        const data = await $fetch<AuthResponse>('/api/auth/register', {
+        const data = await authFetch<AuthResponse>('/api/auth/register', {
             method: 'POST',
             body: { email, password },
-            credentials: 'include',
         })
         _storeSession(data)
     }
 
     const login = async (email: string, password: string) => {
-        const data = await $fetch<AuthResponse>('/api/auth/login', {
+        const data = await authFetch<AuthResponse>('/api/auth/login', {
             method: 'POST',
             body: { email, password },
-            credentials: 'include',
         })
         _storeSession(data)
     }
 
     const logout = async () => {
         await $fetch('/api/auth/logout', { method: 'POST' })
-        _clearSession()
+        clearSession()
     }
-    //endregion
 
-    return { isAuthenticated, userId, roles, register, login, logout }
+    return { isAuthenticated, isRefreshing,  userId, roles, storeSession, clearSession, register, login, logout }
 }

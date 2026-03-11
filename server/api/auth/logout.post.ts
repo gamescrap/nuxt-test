@@ -1,5 +1,4 @@
 import {apiFetch} from "#server/utils/api";
-import {handleSpringError} from "#server/utils/errors";
 
 export default defineEventHandler(async (event) => {
     try {
@@ -16,7 +15,7 @@ export default defineEventHandler(async (event) => {
         return { success: true }
 
     } catch (e: any) {
-        handleSpringError(e, 'Erreur lors de la déconnexion')
+        console.warn(e, 'Erreur lors de la déconnexion')
     } finally {
         deleteCookie(event, 'auth_token')
         deleteCookie(event, 'refresh_token')
