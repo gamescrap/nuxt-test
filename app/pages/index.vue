@@ -1,49 +1,40 @@
 <script setup lang="ts">
-import {formatTripDate} from "#shared/utils/date";
-
 definePageMeta({ middleware: 'auth' })
 
-const { userId, logout } = useAuth()
 const { fetchTrips } = useTrips()
-
-const {data: trips, error, refresh : refreshTrips } = await fetchTrips({isUpcoming: true})
-
-const handleLogout = async () => {
-  await logout()
-  await navigateTo('/auth/login')
-}
+const { data: trips, error, refresh: refreshTrips } = await fetchTrips({ isUpcoming: true })
 </script>
 
 <template>
-  <main>
-    <h1>Dashboard</h1>
-    <p>Connecté en tant qu'utilisateur #{{ userId }}</p>
-    <button @click="handleLogout()">Se déconnecter</button>
-    <button @click="refreshTrips()">rafraichir la liste des trajets</button>
+  <main class="min-h-[calc(100vh-4rem)] bg-gray-50">
+    <div class="max-w-2xl mx-auto px-4 py-6">
 
-    <h2>Trajets disponibles</h2>
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-base font-semibold text-gray-900">Trajets disponibles</h2>
+        <button
+            @click="refreshTrips()"
+            class="text-sm text-blue-600 hover:text-blue-800 transition-colors"
+        >
+          Actualiser
+        </button>
+      </div>
 
-    <p v-if="error">Erreur lors du chargement des trajets.</p>
+      <p v-if="error" class="text-sm text-red-500 text-center py-8">
+        Erreur lors du chargement des trajets.
+      </p>
 
-    <ul v-else-if="trips?.length">
-      <li v-for="trip in trips" :key="trip.id">
-        <strong>
-          {{ trip.departureAddress.city.name }}
-          →
-          {{ trip.arrivingAddress.city.name }}
-        </strong>
-        | Conducteur : {{ trip.driver.firstname }} {{ trip.driver.lastname }}
-        | Places restantes : {{ trip.availableSeats }}
-        | Distance : {{ trip.distanceKm ?? 'Inconnu' }} km
-        | Durée : {{ trip.durationMinutes ?? 'Inconnu' }} min
-        | Date de départ : {{ formatTripDate(trip.tripDatetime) }}
-      </li>
-    </ul>
+      <ul v-else-if="trips?.length" class="space-y-3">
+        <TripCard
+            v-for="trip in trips"
+            :key="trip.id"
+            :trip="trip"
+        />
+      </ul>
 
-    <p v-else>Aucun trajet disponible.</p>
+      <p v-else class="text-sm text-gray-500 text-center py-8">
+        Aucun trajet disponible.
+      </p>
+
+    </div>
   </main>
 </template>
-
-<style scoped>
-
-</style>

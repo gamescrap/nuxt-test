@@ -1,7 +1,7 @@
 <script setup lang="ts">
 const { isAuthenticated, isRefreshing } = useAuth()
 const showLoading = ref(false)
-const MIN_LOADING_MS = 1000
+const MIN_LOADING_MS = 3000
 
 watch(isRefreshing, (val) => {
   if (val) {
@@ -30,7 +30,8 @@ const handleTest = () => {
   <AppLoader v-if="showLoading" />
 
   <template v-else>
-    <button @click="handleTest">Tester le chargement</button>
+    <AppHeader />
+<!--    <button @click="handleTest">Tester le chargement</button>-->
     <NuxtPage />
   </template>
 </template>

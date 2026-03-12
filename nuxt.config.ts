@@ -1,4 +1,3 @@
-
 export default defineNuxtConfig({
   compatibilityDate: '2025-07-15',
   devtools: { enabled: true },
@@ -18,4 +17,6 @@ export default defineNuxtConfig({
       '/.well-known/**': { redirect: { to: '/', statusCode: 301 } },
     },
   },
+
+  modules: ['@nuxtjs/tailwindcss'],
 })

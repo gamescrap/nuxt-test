@@ -1,53 +1,22 @@
 <template>
-  <div class="loading-screen">
-    <div class="planet-system">
-      <img src="/images/planet.png" class="planet" alt="planète" />
-      <img src="/images/car.png" class="car" alt="voiture" />
+  <div class="flex flex-col items-center justify-center h-screen gap-6">
+    <div class="relative w-48 h-48">
+      <img src="/images/planet.png" class="planet absolute inset-0 w-full h-full" alt="planète" />
+      <img src="/images/car.png" class="car absolute inset-0 w-full h-full" alt="voiture" />
     </div>
-    <p class="loading-text">Chargement...</p>
+    <p class="text-sm tracking-widest opacity-70">Chargement...</p>
   </div>
 </template>
 
 <style scoped>
-.loading-screen {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  height: 100vh;
-  gap: 24px;
-}
-
-.planet-system {
-  position: relative;
-  width: 200px;
-  height: 200px;
-}
-
 .planet {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 200px;
-  height: 200px;
   animation: rotatePlanet 8s linear infinite;
   transform-origin: center center;
 }
 
 .car {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 200px;
-  height: 200px;
   animation: rotateCar 3s linear infinite;
   transform-origin: center center;
-}
-
-.loading-text {
-  font-size: 1rem;
-  letter-spacing: 0.1em;
-  opacity: 0.7;
 }
 
 @keyframes rotatePlanet {

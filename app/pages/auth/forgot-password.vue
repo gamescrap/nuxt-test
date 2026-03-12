@@ -1,17 +1,21 @@
 <script setup lang="ts">
 definePageMeta({ middleware: 'guest' })
 
-const { login } = useAuth()
-const form = reactive({ email: '', password: '' })
+const form = reactive({ email: '' })
 const error = ref('')
+const success = ref('')
 const loading = ref(false)
 
 const handleSubmit = async () => {
   error.value = ''
+  success.value = ''
   loading.value = true
   try {
-    await login(form.email, form.password)
-    await navigateTo('/')
+    await $fetch('/api/auth/forgot-password', {
+      method: 'POST',
+      body: { email: form.email }
+    })
+    success.value = 'Un email de réinitialisation a été envoyé si ce compte existe.'
   } catch (e: any) {
     error.value = getErrorMessage(e)
   } finally {
@@ -25,8 +29,8 @@ const handleSubmit = async () => {
     <div class="w-full max-w-sm">
 
       <div class="text-center mb-8">
-        <h1 class="text-2xl font-semibold text-gray-900">Connexion</h1>
-        <p class="text-sm text-gray-500 mt-1">Bienvenue, connectez-vous pour continuer</p>
+        <h1 class="text-2xl font-semibold text-gray-900">Mot de passe oublié</h1>
+        <p class="text-sm text-gray-500 mt-1">Renseignez votre email pour recevoir un lien de réinitialisation</p>
       </div>
 
       <form @submit.prevent="handleSubmit" class="bg-white rounded-2xl border border-gray-200 p-6 space-y-4">
@@ -43,43 +47,22 @@ const handleSubmit = async () => {
           />
         </div>
 
-        <div class="space-y-1">
-          <label for="password" class="text-sm font-medium text-gray-700">Mot de passe</label>
-          <input
-              id="password"
-              v-model="form.password"
-              type="password"
-              required
-              placeholder="••••••••"
-              class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
-          />
-        </div>
-
         <p v-if="error" class="text-xs text-red-500">{{ error }}</p>
-
-        <div class="flex justify-end">
-          <NuxtLink
-              to="/auth/forgot-password"
-              class="text-xs text-blue-600 hover:text-blue-800 transition-colors"
-          >
-            Mot de passe oublié ?
-          </NuxtLink>
-        </div>
+        <p v-if="success" class="text-xs text-green-600">{{ success }}</p>
 
         <button
             type="submit"
-            :disabled="loading"
+            :disabled="loading || !!success"
             class="w-full bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white text-sm font-medium rounded-lg py-2.5 transition-colors"
         >
-          {{ loading ? 'Connexion...' : 'Se connecter' }}
+          {{ loading ? 'Envoi...' : 'Envoyer le lien' }}
         </button>
 
       </form>
 
       <p class="text-center text-sm text-gray-500 mt-4">
-        Pas encore de compte ?
-        <NuxtLink to="/auth/register" class="text-blue-600 hover:text-blue-800 font-medium">
-          S'inscrire
+        <NuxtLink to="/auth/login" class="text-blue-600 hover:text-blue-800 font-medium">
+          Retour à la connexion
         </NuxtLink>
       </p>
 
