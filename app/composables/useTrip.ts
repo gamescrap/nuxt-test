@@ -10,7 +10,7 @@ export const useTrips = (filters: TripFilters = {}) => {
 
     const fetchTrips = (filters: TripFilters = {}) => useAsyncData(
         `trips-${JSON.stringify(filters)}`,
-        () => requestFetch<Trip[]>('/api/protected/trips', {
+        () => requestFetch<Trip[]>('/api/trips', {
             params: filters
         })
     )
