@@ -8,7 +8,7 @@ watch(isRefreshing, (val) => {
     showLoading.value = true
     return
   }
-  // isRefreshing passé à false → attend le minimum
+
   setTimeout(() => {
     showLoading.value = false
   }, MIN_LOADING_MS)
@@ -27,9 +27,7 @@ const handleTest = () => {
 </script>
 
 <template>
-  <div v-if="showLoading" style="display: flex; align-items: center; justify-content: center; height: 100vh;">
-    <p>Chargement...</p>
-  </div>
+  <AppLoader v-if="showLoading" />
 
   <template v-else>
     <button @click="handleTest">Tester le chargement</button>

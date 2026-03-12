@@ -1,27 +1,25 @@
 <script setup lang="ts">
-import type {Trip} from "#shared/types/trip";
+import {formatTripDate} from "#shared/utils/date";
 
 definePageMeta({ middleware: 'auth' })
 
 const { userId, logout } = useAuth()
+const { fetchTrips } = useTrips()
+
+const {data: trips, error, refresh : refreshTrips } = await fetchTrips({isUpcoming: true})
 
 const handleLogout = async () => {
   await logout()
   await navigateTo('/auth/login')
 }
-
-const requestFetch = useRequestFetch()
-
-const { data: trips, error } = await useAsyncData('trips', () =>
-    requestFetch<Trip[]>('/api/trips')
-)
 </script>
 
 <template>
   <main>
     <h1>Dashboard</h1>
     <p>Connecté en tant qu'utilisateur #{{ userId }}</p>
-    <button @click="handleLogout">Se déconnecter</button>
+    <button @click="handleLogout()">Se déconnecter</button>
+    <button @click="refreshTrips()">rafraichir la liste des trajets</button>
 
     <h2>Trajets disponibles</h2>
 
@@ -38,6 +36,7 @@ const { data: trips, error } = await useAsyncData('trips', () =>
         | Places restantes : {{ trip.availableSeats }}
         | Distance : {{ trip.distanceKm ?? 'Inconnu' }} km
         | Durée : {{ trip.durationMinutes ?? 'Inconnu' }} min
+        | Date de départ : {{ formatTripDate(trip.tripDatetime) }}
       </li>
     </ul>
 

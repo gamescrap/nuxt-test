@@ -8,14 +8,8 @@ export default defineNuxtPlugin(async () => {
     })
 
     if (meData?.userId) {
-        storeSession(meData)
-        return
-    }
 
-    const refreshToken = useCookie('refresh_token')
-    if (!refreshToken.value) {
-        clearSession()
-        await navigateTo('/auth/login')
+        storeSession(meData)
         return
     }
 
@@ -25,7 +19,6 @@ export default defineNuxtPlugin(async () => {
             method: 'POST',
             ignoreResponseError: true
         })
-
         if (refreshed?.userId) {
             storeSession(refreshed)
             return
