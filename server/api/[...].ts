@@ -2,6 +2,10 @@ import {apiFetch} from "#server/utils/api";
 import {withTokenRefresh} from "#server/utils/errors";
 
 export default defineEventHandler(async (event): Promise<unknown> => {
+    if (event.path.startsWith('/api/auth')) {
+        throw createError({ status: 404, message: 'Not found' })
+    }
+
     const token = getCookie(event, 'auth_token')
 
     if (!token) {

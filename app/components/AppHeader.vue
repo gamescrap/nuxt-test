@@ -1,5 +1,5 @@
 <script setup lang="ts">
-const { userId, isAuthenticated, logout } = useAuth()
+const { isAuthenticated, logout } = useAuth()
 
 const handleLogout = async () => {
   await logout()
