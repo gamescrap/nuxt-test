@@ -1,37 +1,40 @@
 <script setup lang="ts">
 const { isAuthenticated, isRefreshing } = useAuth()
+const route = useRoute()
 const showLoading = ref(false)
-const MIN_LOADING_MS = 3000
+const MIN_LOADING_MS = 1000
+
+const isAuthPage = computed(() => route.path.startsWith('/auth/'))
 
 watch(isRefreshing, (val) => {
   if (val) {
     showLoading.value = true
     return
   }
-
   setTimeout(() => {
     showLoading.value = false
   }, MIN_LOADING_MS)
 })
 
 watch(isAuthenticated, (val) => {
-  if (!val && !isRefreshing.value) {
+  if (val) {
+    setTimeout(() => {
+      isRefreshing.value = false
+    }, MIN_LOADING_MS)
+    return
+  }
+
+  if (!isRefreshing.value) {
     navigateTo('/auth/login')
   }
 })
-
-const handleTest = () => {
-  showLoading.value = true
-  setTimeout(() => showLoading.value = false, MIN_LOADING_MS)
-}
 </script>
 
 <template>
   <AppLoader v-if="showLoading" />
 
   <template v-else>
-    <AppHeader />
-<!--    <button @click="handleTest">Tester le chargement</button>-->
+    <AppHeader v-if="!isAuthPage" />
     <NuxtPage />
   </template>
 </template>

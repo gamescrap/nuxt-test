@@ -1,14 +1,17 @@
 <script setup lang="ts">
 import { formatTripDate } from '#shared/utils/date'
 
-const props = defineProps<{
+defineProps<{
   trip: Trip
+  index?: number
 }>()
 </script>
 
 <template>
-  <li class="bg-white rounded-xl border border-gray-200 p-4 space-y-3">
-
+  <li
+      class="trip-card bg-white rounded-xl border border-gray-200 p-4 space-y-3"
+      :style="{ animationDelay: `${(index ?? 0) * 80}ms` }"
+  >
     <div class="flex items-center gap-2">
       <span class="font-semibold text-gray-900">{{ trip.departureAddress.city.name }}</span>
       <span class="text-gray-400">→</span>
@@ -31,6 +34,22 @@ const props = defineProps<{
         {{ trip.durationMinutes ?? 'Inconnu' }} min
       </span>
     </div>
-
   </li>
 </template>
+
+<style scoped>
+.trip-card {
+  animation: slideIn 0.4s ease both;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+</style>

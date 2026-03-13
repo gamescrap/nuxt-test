@@ -25,9 +25,10 @@ const { data: trips, error, refresh: refreshTrips } = await fetchTrips({ isUpcom
 
       <ul v-else-if="trips?.length" class="space-y-3">
         <TripCard
-            v-for="trip in trips"
+            v-for="(trip, index) in trips"
             :key="trip.id"
             :trip="trip"
+            :index="index"
         />
       </ul>
 

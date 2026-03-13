@@ -27,6 +27,7 @@ export const useAuth = () => {
             method: 'POST',
             body: { email, password },
         })
+        isRefreshing.value = true
         _storeSession(data)
     }
 
@@ -35,6 +36,7 @@ export const useAuth = () => {
             method: 'POST',
             body: { email, password },
         })
+        isRefreshing.value = true
         _storeSession(data)
     }
 
