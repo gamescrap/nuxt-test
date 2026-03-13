@@ -22,12 +22,10 @@ export const withTokenRefresh = async (
         return await request()
 
     } catch (e: any) {
-        // Si ce n'est pas un 401, on propage l'erreur normalement
         if (e?.response?.status !== 401) {
             handleSpringError(e)
         }
 
-        // Tentative de refresh
         const refreshToken = getCookie(event, 'refresh_token')
         if (!refreshToken) {
             throw createError({ status: 401, message: 'Session expirée' })
@@ -40,8 +38,6 @@ export const withTokenRefresh = async (
             })
 
             setAuthCookies(event, refreshed.token, refreshed.refreshToken)
-
-            // Relance la requête originale avec le nouveau token
             return await request()
 
         } catch {
