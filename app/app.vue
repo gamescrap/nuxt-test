@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import AppFooter from "~/components/AppFooter.vue";
+
 const { isAuthenticated, isRefreshing } = useAuth()
 const route = useRoute()
 const showLoading = ref(false)
@@ -35,6 +37,9 @@ watch(isAuthenticated, (val) => {
 
   <template v-else>
     <AppHeader v-if="!isAuthPage" />
-    <NuxtPage />
+    <main :class="!isAuthPage ? 'pt-12 pb-16 md:pb-[100px]' : ''">
+      <NuxtPage />
+    </main>
+    <AppFooter v-if="!isAuthPage" />
   </template>
 </template>
