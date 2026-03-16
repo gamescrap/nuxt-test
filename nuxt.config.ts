@@ -18,5 +18,6 @@ export default defineNuxtConfig({
     },
   },
 
+  css: ['~/assets/css/animations.css'],
   modules: ['@nuxtjs/tailwindcss'],
 })

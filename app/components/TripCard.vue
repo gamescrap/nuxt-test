@@ -9,7 +9,7 @@ defineProps<{
 
 <template>
   <li
-      class="trip-card bg-white rounded-xl border border-gray-200 p-4 space-y-3"
+      class="slide-in bg-white rounded-xl border border-gray-200 p-4 space-y-3"
       :style="{ animationDelay: `${(index ?? 0) * 80}ms` }"
   >
     <div class="flex items-center gap-2">
@@ -36,20 +36,3 @@ defineProps<{
     </div>
   </li>
 </template>
-
-<style scoped>
-.trip-card {
-  animation: slideIn 0.4s ease both;
-}
-
-@keyframes slideIn {
-  from {
-    opacity: 0;
-    transform: translateX(-20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
-}
-</style>

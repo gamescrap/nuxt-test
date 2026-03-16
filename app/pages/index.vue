@@ -6,7 +6,7 @@ const { data: trips, error, refresh: refreshTrips } = await fetchTrips({ isUpcom
 </script>
 
 <template>
-  <main class="min-h-[calc(100vh-4rem)] bg-gray-50">
+  <main class="min-h-[calc(100vh-113px)] md:min-h-[calc(100vh-130px)] bg-gray-50">
     <div class="max-w-2xl mx-auto px-4 py-6">
 
       <div class="flex items-center justify-between mb-4">

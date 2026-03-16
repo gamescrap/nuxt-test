@@ -3,11 +3,6 @@ import { Home, Navigation, Search, BookMarked, User, LogOut } from 'lucide-vue-n
 
 const { logout } = useAuth()
 
-const handleLogout = async () => {
-  await logout()
-  await navigateTo('/auth/login')
-}
-
 const links = [
   { to: '/',             label: 'Accueil',           icon: Home       },
   { to: '/trips/mine',   label: 'Mes trajets',        icon: Navigation },
@@ -21,7 +16,7 @@ const links = [
   <footer class="app-footer fixed bottom-0 left-0 right-0 bg-blue-600 border-t border-blue-500 z-50">
 
     <!-- Desktop -->
-    <div class="hidden md:flex items-stretch justify-center h-[100px] max-w-2xl mx-auto">
+    <div class="hidden md:flex items-stretch justify-center h-[80px] max-w-2xl mx-auto">
 
       <NuxtLink
           v-for="link in links"
@@ -33,16 +28,6 @@ const links = [
         <component :is="link.icon" :size="22" />
         <span class="text-xs whitespace-nowrap">{{ link.label }}</span>
       </NuxtLink>
-
-      <button
-          @click="handleLogout"
-          aria-label="Se déconnecter"
-          class="flex flex-col items-center justify-center gap-1.5 px-6 text-blue-200 hover:text-white hover:bg-blue-500 transition-colors border-r border-blue-500"
-      >
-        <LogOut :size="22" />
-        <span class="text-xs">Sortir</span>
-      </button>
-
     </div>
 
     <!-- Mobile -->
@@ -58,15 +43,6 @@ const links = [
       >
         <component :is="link.icon" :size="22" />
       </NuxtLink>
-
-      <button
-          @click="handleLogout"
-          aria-label="Se déconnecter"
-          class="flex items-center justify-center flex-1 text-blue-200 hover:text-white hover:bg-blue-500 transition-colors border-r border-blue-500"
-      >
-        <LogOut :size="22" />
-      </button>
-
     </div>
 
   </footer>
