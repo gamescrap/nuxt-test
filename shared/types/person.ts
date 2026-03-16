@@ -14,3 +14,10 @@ export interface Person {
     profile?: PersonProfile
     roles: string[]
 }
+
+export interface UpdatePersonRequest {
+    firstname: string
+    lastname: string
+    phone: string
+    birthday: string
+}

@@ -21,7 +21,7 @@ const links = [
   <footer class="app-footer fixed bottom-0 left-0 right-0 bg-blue-600 border-t border-blue-500 z-50">
 
     <!-- Desktop -->
-    <div class="hidden md:flex items-stretch justify-center h-[100px] max-w-2xl mx-auto">
+    <div class="hidden md:flex items-stretch justify-center h-[80px] max-w-2xl mx-auto">
 
       <NuxtLink
           v-for="link in links"
