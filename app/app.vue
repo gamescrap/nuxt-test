@@ -37,7 +37,7 @@ watch(isAuthenticated, (val) => {
 
   <template v-else>
     <AppHeader v-if="!isAuthPage" />
-    <main :class="!isAuthPage ? 'pt-12 pb-16 md:pb-[100px]' : ''">
+    <main :class="!isAuthPage ? 'pt-12 pb-[4rem] md:pb-[5rem]' : ''">
       <NuxtPage />
     </main>
     <AppFooter v-if="!isAuthPage" />

@@ -1,0 +1,24 @@
+.slide-in {
+    animation: slideIn 0.4s ease both;
+}
+
+.slide-in-delay-1 {
+    animation: slideIn 0.4s ease both;
+    animation-delay: 80ms;
+}
+
+.slide-in-delay-2 {
+    animation: slideIn 0.4s ease both;
+    animation-delay: 160ms;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateX(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}

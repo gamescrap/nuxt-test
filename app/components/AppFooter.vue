@@ -3,11 +3,6 @@ import { Home, Navigation, Search, BookMarked, User, LogOut } from 'lucide-vue-n
 
 const { logout } = useAuth()
 
-const handleLogout = async () => {
-  await logout()
-  await navigateTo('/auth/login')
-}
-
 const links = [
   { to: '/',             label: 'Accueil',           icon: Home       },
   { to: '/trips/mine',   label: 'Mes trajets',        icon: Navigation },
@@ -33,16 +28,6 @@ const links = [
         <component :is="link.icon" :size="22" />
         <span class="text-xs whitespace-nowrap">{{ link.label }}</span>
       </NuxtLink>
-
-      <button
-          @click="handleLogout"
-          aria-label="Se déconnecter"
-          class="flex flex-col items-center justify-center gap-1.5 px-6 text-blue-200 hover:text-white hover:bg-blue-500 transition-colors border-r border-blue-500"
-      >
-        <LogOut :size="22" />
-        <span class="text-xs">Sortir</span>
-      </button>
-
     </div>
 
     <!-- Mobile -->
@@ -58,15 +43,6 @@ const links = [
       >
         <component :is="link.icon" :size="22" />
       </NuxtLink>
-
-      <button
-          @click="handleLogout"
-          aria-label="Se déconnecter"
-          class="flex items-center justify-center flex-1 text-blue-200 hover:text-white hover:bg-blue-500 transition-colors border-r border-blue-500"
-      >
-        <LogOut :size="22" />
-      </button>
-
     </div>
 
   </footer>
