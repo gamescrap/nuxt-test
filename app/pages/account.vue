@@ -1,7 +1,7 @@
 <script setup lang="ts">
 definePageMeta({ middleware: 'auth' })
 
-const { userId, logout } = useAuth()
+const { userId, logout, isAuthenticated } = useAuth()
 const { person } = usePerson()
 const hasProfile = computed(() => !!person.value?.profile)
 
@@ -25,7 +25,7 @@ const handleDeleteAccount = async () => {
 </script>
 
 <template>
-  <main class="min-h-[calc(100vh-4rem)] bg-gray-50">
+  <main v-if="isAuthenticated" class="min-h-[calc(100vh-4rem)] bg-gray-50">
     <div class="max-w-2xl mx-auto px-4 py-6 space-y-6">
 
       <div class="mb-2">
@@ -38,39 +38,14 @@ const handleDeleteAccount = async () => {
         <p class="text-sm text-blue-600 mt-1">Renseignez vos informations pour utiliser pleinement l'application.</p>
       </div>
 
-      <AccountProfileForm />
 
+      <AccountProfileForm class="slide-in" style="position: relative; z-index: 2;" />
 
-      <div class="bg-white rounded-xl border border-gray-200 overflow-hidden relative">
-
-        <div v-if="!hasProfile" class="p-6 space-y-4 opacity-30 pointer-events-none select-none">
-          <h2 class="text-base font-semibold text-gray-900">Mon véhicule</h2>
-          <div class="space-y-1">
-            <label class="text-sm font-medium text-gray-700">Marque</label>
-            <select disabled class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-400 bg-gray-50" />
-          </div>
-          <div class="grid grid-cols-2 gap-4">
-            <div class="space-y-1">
-              <label class="text-sm font-medium text-gray-700">Modèle</label>
-              <input disabled class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm bg-gray-50" />
-            </div>
-            <div class="space-y-1">
-              <label class="text-sm font-medium text-gray-700">Plaque</label>
-              <input disabled class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm bg-gray-50" />
-            </div>
-          </div>
-        </div>
-
-        <div v-if="!hasProfile" class="absolute inset-0 flex items-center justify-center bg-white/75">
-          <div class="bg-amber-50 border border-amber-300 rounded-xl px-5 py-4 mx-4 text-center shadow-sm">
-            <p class="text-sm font-semibold text-amber-700">⚠️ Profil incomplet</p>
-            <p class="text-xs text-amber-600 mt-1">Complétez votre profil pour renseigner votre véhicule.</p>
-          </div>
-        </div>
-
-        <AccountVehicleForm v-else />
-
-      </div>
+      <AccountVehicleForm
+          class="slide-in"
+          style="position: relative; z-index: 1; animation-delay: 160ms;"
+          :locked="!hasProfile"
+      />
 
       <!-- Suppression compte -->
       <div class="slide-in" style="animation-delay: 300ms">
