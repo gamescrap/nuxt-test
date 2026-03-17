@@ -8,17 +8,21 @@ export default defineNuxtPlugin(async () => {
     })
 
     if (meData?.userId) {
-
         storeSession(meData)
         return
     }
 
     try {
         isRefreshing.value = true
-        const refreshed = await $fetch<AuthResponse | null>('/api/auth/refresh', {
-            method: 'POST',
-            ignoreResponseError: true
-        })
+
+        const refreshed = await Promise.race([
+            $fetch<AuthResponse | null>('/api/auth/refresh', {
+                method: 'POST',
+                ignoreResponseError: true
+            }),
+            new Promise<null>((resolve) => setTimeout(() => resolve(null), 5000))
+        ])
+
         if (refreshed?.userId) {
             storeSession(refreshed)
             return
