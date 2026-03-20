@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { Home, Navigation, Search, BookMarked, User, LogOut } from 'lucide-vue-next'
 
-const { logout } = useAuth()
+const { isAuthenticated } = useAuth()
 
 const links = [
   { to: '/',             label: 'Accueil',           icon: Home       },
@@ -13,7 +13,7 @@ const links = [
 </script>
 
 <template>
-  <footer class="app-footer fixed bottom-0 left-0 right-0 bg-blue-600 border-t border-blue-500 z-50">
+  <footer v-if="isAuthenticated" class="app-footer fixed bottom-0 left-0 right-0 bg-blue-600 border-t border-blue-500 z-50">
 
     <!-- Desktop -->
     <div class="hidden md:flex items-stretch justify-center h-[80px] max-w-2xl mx-auto">

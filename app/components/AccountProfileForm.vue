@@ -57,7 +57,7 @@ const handleSubmit = async () => {
 </script>
 
 <template>
-  <form @submit.prevent="handleSubmit" class="slide-in bg-white rounded-xl border border-gray-200 p-6 space-y-4">
+  <form @submit.prevent="handleSubmit" class="bg-white rounded-xl border border-gray-200 p-6 space-y-4">
 
     <h2 class="text-base font-semibold text-gray-900">Informations personnelles</h2>
 
@@ -113,7 +113,7 @@ const handleSubmit = async () => {
           v-model="birthdayDate"
           :max-date="maxDate"
           mode="date"
-          :popover="{ visibility: 'click' }"
+          :popover="{ visibility: 'click', absolute: 'e'}"
       >
         <template #default="{ inputValue, inputEvents }">
           <input

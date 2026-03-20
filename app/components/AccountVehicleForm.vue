@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import type { VehicleRequest } from '#shared/types/vehicle'
 
+defineProps<{ locked: boolean }>()
+
 const requestFetch = useRequestFetch()
 
 const { data: brands } = await useAsyncData('brands', () =>
@@ -80,100 +82,115 @@ const handleDelete = async () => {
 </script>
 
 <template>
-  <form @submit.prevent="handleSubmit" class="slide-in p-6 space-y-4" style="animation-delay: 80ms">
+  <div class="bg-white rounded-xl border border-gray-200 relative">
 
-    <h2 class="text-base font-semibold text-gray-900">Mon véhicule</h2>
+    <form
+        @submit.prevent="handleSubmit"
+        class="p-6 space-y-4"
+        :class="{ 'opacity-30 blur-sm pointer-events-none select-none': locked }"
+    >
+      <h2 class="text-base font-semibold text-gray-900">Mon véhicule</h2>
 
-    <div class="space-y-1">
-      <label for="brand" class="text-sm font-medium text-gray-700">Marque</label>
-      <select
-          id="brand"
-          v-model="vehicleForm.brandId"
-          required
-          class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
-      >
-        <option :value="0" disabled>Sélectionner une marque</option>
-        <option v-for="brand in brands" :key="brand.id" :value="brand.id">{{ brand.name }}</option>
-      </select>
-    </div>
-
-    <div class="space-y-1">
-      <label for="model" class="text-sm font-medium text-gray-700">Modèle</label>
-      <input
-          id="model"
-          v-model="vehicleForm.model"
-          type="text"
-          required
-          placeholder="V10 Turbo"
-          class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
-      />
-    </div>
-
-    <div class="space-y-1">
-      <label for="description" class="text-sm font-medium text-gray-700">Description</label>
-      <textarea
-          id="description"
-          v-model="vehicleForm.description"
-          placeholder="pur cuir, climatisation, coffre spacieux..."
-          rows="3"
-          class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition resize-none"
-      />
-    </div>
-
-    <div class="grid grid-cols-2 gap-4">
       <div class="space-y-1">
-        <label for="plate" class="text-sm font-medium text-gray-700">Plaque</label>
+        <label for="brand" class="text-sm font-medium text-gray-700">Marque</label>
+        <select
+            id="brand"
+            v-model="vehicleForm.brandId"
+            required
+            class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+        >
+          <option :value="0" disabled>Sélectionner une marque</option>
+          <option v-for="brand in brands" :key="brand.id" :value="brand.id">{{ brand.name }}</option>
+        </select>
+      </div>
+
+      <div class="space-y-1">
+        <label for="model" class="text-sm font-medium text-gray-700">Modèle</label>
         <input
-            id="plate"
-            v-model="vehicleForm.plate"
+            id="model"
+            v-model="vehicleForm.model"
             type="text"
             required
-            placeholder="AB-143-CD"
+            placeholder="V10 Turbo"
             class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
         />
       </div>
+
       <div class="space-y-1">
-        <label for="seats" class="text-sm font-medium text-gray-700">Places disponibles</label>
-        <input
-            id="seats"
-            v-model.number="vehicleForm.seats"
-            type="number"
-            min="1"
-            max="9"
-            required
-            class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+        <label for="description" class="text-sm font-medium text-gray-700">Description</label>
+        <textarea
+            id="description"
+            v-model="vehicleForm.description"
+            placeholder="pur cuir, climatisation, coffre spacieux..."
+            rows="3"
+            class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition resize-none"
         />
+      </div>
+
+      <div class="grid grid-cols-2 gap-4">
+        <div class="space-y-1">
+          <label for="plate" class="text-sm font-medium text-gray-700">Plaque</label>
+          <input
+              id="plate"
+              v-model="vehicleForm.plate"
+              type="text"
+              required
+              placeholder="AB-143-CD"
+              class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+          />
+        </div>
+        <div class="space-y-1">
+          <label for="seats" class="text-sm font-medium text-gray-700">Places disponibles</label>
+          <input
+              id="seats"
+              v-model.number="vehicleForm.seats"
+              type="number"
+              min="1"
+              max="9"
+              required
+              class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+          />
+        </div>
+      </div>
+
+      <p v-if="error" class="text-xs text-red-500">{{ error }}</p>
+      <p v-if="success" class="text-xs text-green-600">Véhicule enregistré avec succès.</p>
+
+      <button
+          type="submit"
+          :disabled="loading"
+          class="w-full bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white text-sm font-medium rounded-lg py-2.5 transition-colors"
+      >
+        {{ loading ? 'Enregistrement...' : hasVehicle ? 'Mettre à jour le véhicule' : 'Ajouter mon véhicule' }}
+      </button>
+
+      <div v-if="hasVehicle" class="flex justify-end">
+        <button
+            type="button"
+            @click="deleteConfirm = true"
+            class="text-sm text-gray-900 hover:text-gray-600 transition-colors underline underline-offset-2"
+        >
+          Supprimer ce véhicule
+        </button>
+      </div>
+    </form>
+
+    <!-- Overlay si locked -->
+    <div v-if="locked" class="absolute inset-0 flex items-center justify-center bg-white/75 rounded-xl">
+      <div class="bg-amber-50 border border-amber-300 rounded-xl px-5 py-4 mx-4 text-center shadow-sm">
+        <p class="text-sm font-semibold text-amber-700">⚠️ Profil incomplet</p>
+        <p class="text-xs text-amber-600 mt-1">Complétez votre profil pour renseigner votre véhicule.</p>
       </div>
     </div>
 
-    <p v-if="error" class="text-xs text-red-500">{{ error }}</p>
-    <p v-if="success" class="text-xs text-green-600">Véhicule enregistré avec succès.</p>
-
-    <button
-        type="submit"
-        :disabled="loading"
-        class="w-full bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white text-sm font-medium rounded-lg py-2.5 transition-colors"
-    >
-      {{ loading ? 'Enregistrement...' : hasVehicle ? 'Mettre à jour le véhicule' : 'Ajouter mon véhicule' }}
-    </button>
-
-    <div v-if="hasVehicle" class="flex justify-end">
-      <button
-          type="button"
-          @click="deleteConfirm = true"
-          class="text-sm text-gray-900 hover:text-gray-600 transition-colors underline underline-offset-2"
-      >
-        Supprimer ce véhicule
-      </button>
-    </div>
-
+    <!-- Modal suppression -->
     <Teleport to="body">
       <Transition name="modal">
         <div v-if="deleteConfirm" class="fixed inset-0 z-50 flex items-center justify-center px-4">
           <div class="absolute inset-0 bg-black/40" @click="deleteConfirm = false" />
           <div class="relative bg-white rounded-2xl shadow-xl p-6 w-full max-w-sm space-y-4">
             <h3 class="text-base font-semibold text-gray-900">Supprimer le véhicule</h3>
-            <p class="text-sm text-gray-500">Cette action est irréversible. Votre véhicule sera définitivement supprimé.</p>
+            <p class="text-sm text-gray-500">Cette action est irréversible.</p>
             <p v-if="deleteError" class="text-xs text-red-500">{{ deleteError }}</p>
             <div class="flex gap-3 pt-2">
               <button
@@ -197,7 +214,7 @@ const handleDelete = async () => {
       </Transition>
     </Teleport>
 
-  </form>
+  </div>
 </template>
 
 <style scoped>

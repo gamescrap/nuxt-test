@@ -1,12 +1,13 @@
 <script setup lang="ts">
 definePageMeta({ middleware: 'auth' })
 
+const { isAuthenticated } = useAuth()
 const { fetchTrips } = useTrips()
 const { data: trips, error, refresh: refreshTrips } = await fetchTrips({ isUpcoming: true })
 </script>
 
 <template>
-  <main class="min-h-[calc(100vh-113px)] md:min-h-[calc(100vh-130px)] bg-gray-50">
+  <main v-if="isAuthenticated" class="min-h-[calc(100vh-113px)] md:min-h-[calc(100vh-130px)] bg-gray-50">
     <div class="max-w-2xl mx-auto px-4 py-6">
 
       <div class="flex items-center justify-between mb-4">
