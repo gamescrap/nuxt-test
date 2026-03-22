@@ -1,8 +1,10 @@
 <script setup lang="ts">
+import TripCardSkeleton from "~/components/TripCardSkeleton.vue";
+
 const { isAuthenticated, handleAuthError } = useAuth()
 const { fetchMyTrips } = useTrips()
 
-const { data: myTrips, error, refresh: refreshTrips } = await fetchMyTrips()
+const { data: myTrips, error, refresh: refreshTrips, pending } = await fetchMyTrips()
 
 const showTrips = ref(true)
 const sortedTrips = computed(() => {
@@ -34,11 +36,16 @@ const handleRefresh = async () => {
         </button>
       </div>
 
-      <p v-if="error" class="text-sm text-red-500 text-center py-8">
+      <!-- Skeletons pendant le chargement -->
+      <ul v-if="pending || !showTrips" class="space-y-3">
+        <TripCardSkeleton v-for="i in 3" :key="i" />
+      </ul>
+
+      <p v-else-if="error" class="text-sm text-red-500 text-center py-8">
         Erreur lors du chargement des trajets.
       </p>
 
-      <ul v-else-if="showTrips && sortedTrips.length" class="space-y-3">
+      <ul v-else-if="sortedTrips.length" class="space-y-3">
         <TripCard
             v-for="(trip, index) in sortedTrips"
             :key="`${trip.role}-${trip.id}`"

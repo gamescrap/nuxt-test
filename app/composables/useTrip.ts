@@ -9,12 +9,11 @@ export const useTrips = (filters: TripFilters = {}) => {
         })
     )
 
-    // app/composables/useTrips.ts
     const fetchMyTrips = () => useAsyncData(
         'my-trips',
         async () => {
             if (!userId.value) return null
-            if (isRefreshing.value) return null  // ← attend la fin du refresh
+            if (isRefreshing.value) return null
 
             const [passenger, driver] = await Promise.all([
                 requestFetch<TripMinimal[]>(`/api/persons/${userId.value}/trips-passenger`),
@@ -22,7 +21,7 @@ export const useTrips = (filters: TripFilters = {}) => {
             ])
             return { passenger, driver }
         },
-        { watch: [isRefreshing] }  // ← relance quand isRefreshing change
+        { watch: [isRefreshing], lazy: true }
     )
 
     return { fetchTrips, fetchMyTrips }
