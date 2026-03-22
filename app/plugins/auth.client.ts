@@ -1,34 +1,15 @@
 export default defineNuxtPlugin(async () => {
-    const { storeSession, clearSession, isAuthenticated, isRefreshing } = useAuth()
+    const { storeSession, clearSession, isAuthenticated } = useAuth()
 
     if (isAuthenticated.value) return
 
-    const meData = await $fetch<AuthResponse | null>('/api/auth/me', {
+    const userData = await $fetch<AuthResponse | null>('/api/auth/me', {
         ignoreResponseError: true
     })
 
-    if (meData?.userId) {
-        storeSession(meData)
+    if (userData?.userId) {
+        storeSession(userData)
         return
-    }
-
-    try {
-        isRefreshing.value = true
-
-        const refreshed = await Promise.race([
-            $fetch<AuthResponse | null>('/api/auth/refresh', {
-                method: 'POST',
-                ignoreResponseError: true
-            }),
-            new Promise<null>((resolve) => setTimeout(() => resolve(null), 5000))
-        ])
-
-        if (refreshed?.userId) {
-            storeSession(refreshed)
-            return
-        }
-    } finally {
-        isRefreshing.value = false
     }
 
     clearSession()

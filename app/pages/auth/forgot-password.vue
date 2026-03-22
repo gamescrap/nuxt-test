@@ -1,6 +1,4 @@
 <script setup lang="ts">
-definePageMeta({ middleware: 'guest' })
-
 const form = reactive({ email: '' })
 const error = ref('')
 const success = ref('')

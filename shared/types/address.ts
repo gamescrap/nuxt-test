@@ -1,3 +1,5 @@
+import type {City} from "#shared/types/city";
+
 export interface Address {
     id: number
     streetNumber: string

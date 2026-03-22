@@ -15,7 +15,10 @@ export default defineEventHandler(async (event) => {
 
         setAuthCookies(event, data.token, data.refreshToken)
 
-        return { userId: data.userId, roles: data.roles }
+        const parts = data.token.split('.')
+        const payload = JSON.parse(Buffer.from(parts[1] ?? '', 'base64').toString('utf-8'))
+
+        return { userId: data.userId, roles: data.roles, exp: payload.exp }
 
     } catch (e: any) {
         handleSpringError(e, 'Erreur lors du rafraîchissement du token')

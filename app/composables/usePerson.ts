@@ -6,8 +6,10 @@ export const usePerson = () => {
 
     const { data: person } = useAsyncData(
         'person',
-        () => requestFetch<Person>(`/api/persons/${userId.value}`),
-        { watch: [userId] }
+        () => {
+            if (!userId.value) return Promise.resolve(null)
+            return requestFetch<Person>(`/api/persons/${userId.value}`)
+        }
     )
 
     const displayName = computed(() => {

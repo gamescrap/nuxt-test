@@ -14,8 +14,6 @@ export default defineEventHandler(async (event) => {
 
         return { success: true }
 
-    } catch (e: any) {
-        console.warn(e, 'Erreur lors de la déconnexion')
     } finally {
         deleteCookie(event, 'auth_token')
         deleteCookie(event, 'refresh_token')

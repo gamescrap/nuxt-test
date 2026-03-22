@@ -17,3 +17,23 @@ export interface Trip {
     driver: Driver
     reservations: Reservation[]
 }
+
+export interface TripMinimal {
+    id: number
+    tripDatetime: string
+    availableSeats: number
+    smokingAllowed: boolean
+    tripStatus: string
+    distanceKm: number
+    durationMinutes: number
+    departureCityName: { id: number; name: string; postalCode: string }
+    arrivingCityName:  { id: number; name: string; postalCode: string }
+    driver: { id: number; email: string; status: string }
+}
+
+export interface TripFilters {
+    arrivalCity?: string
+    startingCity?: string
+    tripDate?: string
+    isUpcoming?: boolean
+}
