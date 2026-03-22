@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import TripCardSkeleton from "~/components/TripCardSkeleton.vue";
-
 const { isAuthenticated, handleAuthError } = useAuth()
 const { fetchMyTrips } = useTrips()
 
@@ -36,10 +34,9 @@ const handleRefresh = async () => {
         </button>
       </div>
 
-      <!-- Skeletons pendant le chargement -->
-      <ul v-if="pending || !showTrips" class="space-y-3">
-        <TripCardSkeleton v-for="i in 3" :key="i" />
-      </ul>
+      <p v-if="pending" class="text-sm text-gray-500 text-center py-8">
+        Chargement...
+      </p>
 
       <p v-else-if="error" class="text-sm text-red-500 text-center py-8">
         Erreur lors du chargement des trajets.
