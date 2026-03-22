@@ -20,8 +20,16 @@ export default defineEventHandler((event) => {
         throw createError({ status: 401, message: 'Token invalide' })
     }
 
+    const now = Math.floor(Date.now() / 1000)
+    const isExpired = decoded.exp < now
+
+    if (isExpired) {
+        throw createError({ status: 401, message: 'Token expiré' })
+    }
+
     return {
         userId: parseInt(decoded.sub),
         roles: decoded.roles,
+        exp: decoded.exp,
     }
 })

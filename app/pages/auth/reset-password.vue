@@ -1,6 +1,4 @@
 <script setup lang="ts">
-definePageMeta({ middleware: 'guest' })
-
 const route = useRoute()
 const token = route.query.token as string
 

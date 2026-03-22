@@ -1,11 +1,3 @@
-export interface PersonProfile {
-    firstname: string
-    lastname: string
-    phone: string
-    birthday: string
-    updatedAt: string
-}
-
 export interface Person {
     id: number
     email: string
@@ -15,9 +7,12 @@ export interface Person {
     roles: string[]
 }
 
-export interface UpdatePersonRequest {
+export interface PersonProfile {
     firstname: string
     lastname: string
     phone: string
     birthday: string
+    updatedAt: string
 }
+
+export type UpdatePersonRequest = Omit<PersonProfile, 'updatedAt'>

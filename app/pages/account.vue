@@ -1,6 +1,4 @@
 <script setup lang="ts">
-definePageMeta({ middleware: 'auth' })
-
 const { userId, logout, isAuthenticated } = useAuth()
 const { person } = usePerson()
 const hasProfile = computed(() => !!person.value?.profile)
@@ -93,8 +91,3 @@ const handleDeleteAccount = async () => {
     </div>
   </main>
 </template>
-
-<style scoped>
-.modal-enter-active, .modal-leave-active { transition: opacity 0.2s ease; }
-.modal-enter-from, .modal-leave-to { opacity: 0; }
-</style>

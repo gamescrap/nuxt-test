@@ -4,4 +4,5 @@ export interface AuthResponse {
     refreshToken: string
     userId: number
     roles: string[]
+    exp?: number
 }
