@@ -5,7 +5,7 @@ const { isAuthenticated } = useAuth()
 
 const links = [
   { to: '/',             label: 'Accueil',           icon: Home       },
-  { to: '/',   label: 'Mes trajets',        icon: Navigation },
+  { to: '/trips',   label: 'Mes trajets',        icon: Navigation },
   { to: '/', label: 'Trouver un trajet',  icon: Search     },
   { to: '/', label: 'Mes réservations',   icon: BookMarked },
   { to: '/account',      label: 'Mon compte',         icon: User       },

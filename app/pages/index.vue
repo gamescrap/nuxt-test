@@ -6,12 +6,13 @@ const { data: myTrips, error, refresh: refreshTrips, pending } = await fetchMyTr
 
 const showTrips = ref(true)
 const sortedTrips = computed(() => {
+  const now = new Date()
   const driver = (myTrips.value?.driver ?? []).map(t => ({ ...t, role: 'driver' as const }))
   const passenger = (myTrips.value?.passenger ?? []).map(t => ({ ...t, role: 'passenger' as const }))
 
-  return [...driver, ...passenger].sort(
-      (a, b) => new Date(a.tripDatetime).getTime() - new Date(b.tripDatetime).getTime()
-  )
+  return [...driver, ...passenger]
+      .filter(t => new Date(t.tripDatetime) > now)
+      .sort((a, b) => new Date(a.tripDatetime).getTime() - new Date(b.tripDatetime).getTime())
 })
 
 const handleRefresh = async () => {
@@ -28,7 +29,7 @@ const handleRefresh = async () => {
     <div class="max-w-2xl mx-auto px-4 py-6 space-y-6">
 
       <div class="flex items-center justify-between">
-        <h2 class="text-base font-semibold text-gray-900">Mes trajets</h2>
+        <h1 class="text-xl font-semibold text-gray-900">Mes trajets et réservations</h1>
         <button @click="handleRefresh" class="text-sm text-blue-600 hover:text-blue-800 transition-colors">
           Actualiser
         </button>
@@ -43,13 +44,14 @@ const handleRefresh = async () => {
       </p>
 
       <ul v-else-if="sortedTrips.length" class="space-y-3">
-        <TripCard
+        <NuxtLink
             v-for="(trip, index) in sortedTrips"
-            :key="`${trip.role}-${trip.id}`"
-            :trip="trip"
-            :index="index"
-            :role="trip.role"
-        />
+            :key="trip.id"
+            :to="`/trips/${trip.id}`"
+            class="block"
+        >
+          <TripMinimalCard :trip="trip" :index="index" role="driver" />
+        </NuxtLink>
       </ul>
 
       <p v-else class="text-sm text-gray-500 text-center py-8">

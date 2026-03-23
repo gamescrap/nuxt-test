@@ -24,5 +24,12 @@ export const useTrips = (filters: TripFilters = {}) => {
         { watch: [isRefreshing], lazy: true }
     )
 
-    return { fetchTrips, fetchMyTrips }
+    const createTrip = async (body: TripRequest) => {
+        return await $fetch<Trip>('/api/trips', {
+            method: 'POST',
+            body,
+        })
+    }
+
+    return { fetchTrips, fetchMyTrips, createTrip }
 }
