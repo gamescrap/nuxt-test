@@ -11,6 +11,25 @@ export const useAddressSearch = () => {
     let cityTimer: ReturnType<typeof setTimeout>
     let addressTimer: ReturnType<typeof setTimeout>
 
+    const fetchWithRefresh = async <T>(url: string, params: Record<string, string>): Promise<T> => {
+        try {
+            return await $fetch<T>(url, { params })
+        } catch (e: any) {
+            if (e?.status === 401) {
+                const refreshed = await $fetch<AuthResponse>('/api/auth/refresh', {
+                    method: 'POST',
+                    ignoreResponseError: true
+                })
+                if (refreshed?.userId) {
+                    const { storeSession } = useAuth()
+                    storeSession(refreshed)
+                    return await $fetch<T>(url, { params })
+                }
+            }
+            throw e
+        }
+    }
+
     const searchCities = (query: string) => {
         selectedCity.value = null
         selectedAddress.value = null
@@ -22,9 +41,7 @@ export const useAddressSearch = () => {
         cityTimer = setTimeout(async () => {
             loadingCities.value = true
             try {
-                citySuggestions.value = await $fetch<City[]>('/api/cities/search', {
-                    params: { name: query }
-                })
+                citySuggestions.value = await fetchWithRefresh<City[]>('/api/cities/search', { name: query })
             } finally {
                 loadingCities.value = false
             }
@@ -39,8 +56,9 @@ export const useAddressSearch = () => {
         addressTimer = setTimeout(async () => {
             loadingAddresses.value = true
             try {
-                addressSuggestions.value = await $fetch<Address[]>('/api/addresses/search', {
-                    params: { city: selectedCity.value!.name, q: query }
+                addressSuggestions.value = await fetchWithRefresh<Address[]>('/api/addresses/search', {
+                    city: selectedCity.value!.name,
+                    q: query
                 })
             } finally {
                 loadingAddresses.value = false

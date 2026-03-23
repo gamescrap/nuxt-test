@@ -57,14 +57,24 @@ export const useAuth = () => {
         clearSession()
     }
 
-    const handleAuthError = (error: Ref<any>) => {
-        if (error.value?.status === 401) {
-            window.location.reload()
+
+
+    const reloadIfUnauthenticated = async () => {
+        if (!isAuthenticated.value) {
+            await navigateTo(useRoute().fullPath, { replace: true, external: true })
+            return true
+        }
+        return false
+    }
+
+    const handleAuthError = async (e: any) => {
+        if (e?.status === 401) {
+            await navigateTo(useRoute().fullPath, { replace: true, external: true })
             return true
         }
         return false
     }
 
     return { isAuthenticated, isRefreshing,  userId, roles, tokenExp, needsRefresh,
-        handleAuthError, storeSession, clearSession, register, login, logout }
+        handleAuthError, reloadIfUnauthenticated, storeSession, clearSession, register, login, logout }
 }

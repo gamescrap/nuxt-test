@@ -18,7 +18,9 @@ watch(isAuthenticated, (val) => {
     setTimeout(() => { isRefreshing.value = false }, MIN_LOADING_MS)
     return
   }
-  if (!isRefreshing.value) navigateTo('/auth/login')
+  if (!isRefreshing.value && !isAuthPage.value) {
+    navigateTo('/auth/login')
+  }
 })
 </script>
 

@@ -1,17 +1,8 @@
 <script setup lang="ts">
-const { userId } = useAuth()
-const requestFetch = useRequestFetch()
+const { fetchDriverTrips } = useTrips()
+const { data: trips, pending } = fetchDriverTrips()
 
 const activeTab = ref<'upcoming' | 'past'>('upcoming')
-
-const { data: trips, pending } = useAsyncData(
-    'driver-trips',
-    async () => {
-      if (!userId.value) return []
-      return requestFetch<TripMinimal[]>(`/api/persons/${userId.value}/trips-driver`)
-    },
-    { lazy: true }
-)
 
 const sortedTrips = computed(() => {
   const now = new Date()

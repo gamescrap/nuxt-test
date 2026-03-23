@@ -4,7 +4,9 @@ const departure = useAddressSearch()
 const arriving = useAddressSearch()
 
 const form = reactive({
-  tripDatetime: '',
+  tripDate: null as Date | null,
+  tripHour: '08',
+  tripMinute: '00',
   availableSeats: 1,
   smokingAllowed: false,
 })
@@ -12,19 +14,29 @@ const form = reactive({
 const loading = ref(false)
 const error = ref('')
 
+const tripDatetime = computed(() => {
+  if (!form.tripDate) return null
+  const d = new Date(form.tripDate)
+  d.setHours(parseInt(form.tripHour), parseInt(form.tripMinute), 0, 0)
+  return d
+})
+
 const canSubmit = computed(() =>
     departure.selectedAddress.value?.id &&
     arriving.selectedAddress.value?.id &&
-    form.tripDatetime
+    tripDatetime.value !== null
 )
 
+const hours = Array.from({ length: 24 }, (_, i) => String(i).padStart(2, '0'))
+const minutes = ['00', '15', '30', '45']
+
 const handleSubmit = async () => {
-  if (!canSubmit.value) return
+  if (!canSubmit.value || !tripDatetime.value) return
   loading.value = true
   error.value = ''
   try {
     await createTrip({
-      tripDatetime: form.tripDatetime,
+      tripDatetime: tripDatetime.value.toISOString().slice(0, 19),
       availableSeats: form.availableSeats,
       smokingAllowed: form.smokingAllowed,
       departureAddressId: departure.selectedAddress.value!.id,
@@ -97,14 +109,15 @@ const handleSubmit = async () => {
         <div class="bg-white rounded-xl border border-gray-200 p-4 space-y-4">
           <h2 class="text-sm font-semibold text-gray-900">Détails</h2>
 
+          <!-- Date -->
           <div class="space-y-1">
-            <label class="text-sm font-medium text-gray-700">Date et heure de départ</label>
-            <VDatePicker v-model="form.tripDatetime" mode="dateTime" :min-date="new Date()">
+            <label class="text-sm font-medium text-gray-700">Date de départ</label>
+            <VDatePicker v-model="form.tripDate" :min-date="new Date()">
               <template #default="{ togglePopover }">
                 <input
                     type="text"
                     readonly
-                    :value="form.tripDatetime ? formatTripDate(form.tripDatetime) : ''"
+                    :value="form.tripDate ? new Date(form.tripDate).toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }) : ''"
                     placeholder="Sélectionner une date"
                     @click="togglePopover"
                     class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer"
@@ -113,6 +126,27 @@ const handleSubmit = async () => {
             </VDatePicker>
           </div>
 
+          <!-- Heure -->
+          <div v-if="form.tripDate" class="space-y-1">
+            <label class="text-sm font-medium text-gray-700">Heure de départ</label>
+            <div class="flex items-center gap-2">
+              <select
+                  v-model="form.tripHour"
+                  class="flex-1 border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+              >
+                <option v-for="h in hours" :key="h" :value="h">{{ h }}h</option>
+              </select>
+              <span class="text-gray-400">:</span>
+              <select
+                  v-model="form.tripMinute"
+                  class="flex-1 border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+              >
+                <option v-for="m in minutes" :key="m" :value="m">{{ m }}</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Places -->
           <div class="space-y-1">
             <label class="text-sm font-medium text-gray-700">Places disponibles</label>
             <input
@@ -122,6 +156,7 @@ const handleSubmit = async () => {
             />
           </div>
 
+          <!-- Fumeurs -->
           <div class="flex items-center justify-between">
             <label class="text-sm font-medium text-gray-700">Fumeurs acceptés</label>
             <input type="checkbox" v-model="form.smokingAllowed" class="w-4 h-4 accent-blue-600" />
