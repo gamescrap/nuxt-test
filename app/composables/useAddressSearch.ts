@@ -23,7 +23,7 @@ export const useAddressSearch = () => {
                 if (refreshed?.userId) {
                     const { storeSession } = useAuth()
                     storeSession(refreshed)
-                    return await $fetch<T>(url, { params })
+                    return $fetch<T>(url, { params })
                 }
             }
             throw e

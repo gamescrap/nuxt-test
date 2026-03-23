@@ -18,7 +18,7 @@ const sortedTrips = computed(() => {
 const handleRefresh = async () => {
   showTrips.value = false
   await refreshTrips()
-  if (handleAuthError(error)) return
+  if (await handleAuthError(error)) return
   await nextTick()
   showTrips.value = true
 }

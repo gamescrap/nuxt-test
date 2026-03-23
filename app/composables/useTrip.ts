@@ -1,7 +1,26 @@
 export const useTrips = (filters: TripFilters = {}) => {
     const requestFetch = useRequestFetch()
-    const { userId, isAuthenticated,
-        handleAuthError, reloadIfUnauthenticated  } = useAuth()
+    const { userId, isAuthenticated, handleAuthError, reloadIfUnauthenticated  } = useAuth()
+
+    const fetchTrip = (id: string | string[] | undefined) => {
+        const { isAuthenticated, reloadIfUnauthenticated, handleAuthError } = useAuth()
+        const requestFetch = useRequestFetch()
+
+        return useAsyncData(
+            `trip-${id}`,
+            async () => {
+                if (!id) return null
+                if (await reloadIfUnauthenticated()) return null
+                try {
+                    return await requestFetch<Trip>(`/api/trips/${id}`)
+                } catch (e: any) {
+                    await handleAuthError(e)
+                    return null
+                }
+            },
+            { watch: [isAuthenticated], lazy: true }
+        )
+    }
 
     const fetchTrips = (filters: TripFilters = {}) => useAsyncData(
         `trips-${JSON.stringify(filters)}`,
@@ -31,7 +50,6 @@ export const useTrips = (filters: TripFilters = {}) => {
     )
 
     const fetchDriverTrips = () => {
-        const { userId, isAuthenticated, reloadIfUnauthenticated, handleAuthError } = useAuth()
         const requestFetch = useRequestFetch()
 
         return useAsyncData(
@@ -66,7 +84,7 @@ export const useTrips = (filters: TripFilters = {}) => {
                 if (refreshed?.userId) {
                     const { storeSession } = useAuth()
                     storeSession(refreshed)
-                    return await $fetch<Trip>('/api/trips', {
+                    return $fetch<Trip>('/api/trips', {
                         method: 'POST',
                         body,
                     })
@@ -76,5 +94,5 @@ export const useTrips = (filters: TripFilters = {}) => {
         }
     }
 
-    return { fetchTrips, fetchMyTrips, fetchDriverTrips, createTrip }
+    return { fetchTrip, fetchTrips, fetchMyTrips, fetchDriverTrips, createTrip }
 }

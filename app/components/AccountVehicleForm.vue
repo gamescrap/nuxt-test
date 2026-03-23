@@ -3,15 +3,7 @@ import type { VehicleRequest } from '#shared/types/vehicle'
 
 defineProps<{ locked: boolean }>()
 
-const requestFetch = useRequestFetch()
-
-const { data: brands } = await useAsyncData('brands', () =>
-    requestFetch<Brand[]>('/api/brands')
-)
-
-const { data: vehicle, refresh: refreshVehicle } = await useAsyncData('vehicle', () =>
-    requestFetch<Vehicle | null>('/api/vehicles/me')
-)
+const { vehicle, brands, saveVehicle, deleteVehicle } = useVehicle()
 
 const hasVehicle = computed(() => !!vehicle.value)
 
@@ -42,13 +34,8 @@ const handleSubmit = async () => {
   success.value = false
   error.value   = ''
   try {
-    if (hasVehicle.value) {
-      await $fetch(`/api/vehicles/${vehicle.value!.id}`, { method: 'PUT', body: vehicleForm })
-    } else {
-      await $fetch('/api/vehicles', { method: 'POST', body: vehicleForm })
-    }
+    await saveVehicle(vehicleForm, hasVehicle.value ? vehicle.value!.id : undefined)
     success.value = true
-    await refreshVehicle()
   } catch (e: any) {
     error.value = getErrorMessage(e)
   } finally {
@@ -65,14 +52,9 @@ const handleDelete = async () => {
   deleteError.value   = ''
   success.value       = false
   try {
-    await $fetch(`/api/vehicles/${vehicle.value!.id}`, { method: 'DELETE' })
-    deleteConfirm.value     = false
-    vehicleForm.brandId     = 0
-    vehicleForm.model       = ''
-    vehicleForm.description = ''
-    vehicleForm.plate       = ''
-    vehicleForm.seats       = 1
-    await refreshVehicle()
+    await deleteVehicle(vehicle.value!.id)
+    deleteConfirm.value = false
+    Object.assign(vehicleForm, { brandId: 0, model: '', description: '', plate: '', seats: 1 })
   } catch (e: any) {
     deleteError.value = getErrorMessage(e)
   } finally {

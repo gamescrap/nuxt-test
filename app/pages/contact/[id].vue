@@ -1,12 +1,7 @@
 <script setup lang="ts">
 const route = useRoute()
-const requestFetch = useRequestFetch()
-
-const { data: person } = useAsyncData(
-    `person-contact-${route.params.id}`,
-    () => requestFetch<Person>(`/api/persons/${route.params.id}`),
-    { lazy: true }
-)
+const { fetchPerson } = usePerson()
+const { data: person } = fetchPerson(route.params.id)
 
 const form = reactive({ subject: '', message: '' })
 const loading = ref(false)

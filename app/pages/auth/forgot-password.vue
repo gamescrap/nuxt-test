@@ -1,4 +1,6 @@
 <script setup lang="ts">
+const { forgotPassword } = useAuth()
+
 const form = reactive({ email: '' })
 const error = ref('')
 const success = ref('')
@@ -9,10 +11,7 @@ const handleSubmit = async () => {
   success.value = ''
   loading.value = true
   try {
-    await $fetch('/api/auth/forgot-password', {
-      method: 'POST',
-      body: { email: form.email }
-    })
+    await forgotPassword(form.email)
     success.value = 'Un email de réinitialisation a été envoyé si ce compte existe.'
   } catch (e: any) {
     error.value = getErrorMessage(e)

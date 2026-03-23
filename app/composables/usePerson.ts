@@ -1,10 +1,10 @@
-import type {Person} from "#shared/types/person";
+import type { Person } from "#shared/types/person"
 
 export const usePerson = () => {
-
     const requestFetch = useRequestFetch()
     const { userId, isAuthenticated } = useAuth()
 
+    // ─── State ───────────────────────────────────────────────────────────────
     const { data: person } = useAsyncData(
         'person',
         () => {
@@ -14,6 +14,7 @@ export const usePerson = () => {
         { watch: [isAuthenticated], lazy: true }
     )
 
+    // ─── Getters ───────────────────────────────────────────────────────────────
     const displayName = computed(() => {
         if (person.value?.profile?.firstname) {
             return `${person.value.profile.firstname} ${person.value.profile.lastname}`
@@ -21,5 +22,31 @@ export const usePerson = () => {
         return person.value?.email ?? ''
     })
 
-    return { person, displayName }
+    // ─── Actions ───────────────────────────────────────────────────────────────
+    const fetchPerson = (id: string | string[] | undefined) => {
+        const { isAuthenticated, reloadIfUnauthenticated, handleAuthError } = useAuth()
+        const requestFetch = useRequestFetch()
+
+        return useAsyncData(
+            `person-${id}`,
+            async () => {
+                if (!id) return null
+                if (await reloadIfUnauthenticated()) return null
+                try {
+                    return await requestFetch<Person>(`/api/persons/${id}`)
+                } catch (e: any) {
+                    await handleAuthError(e)
+                    return null
+                }
+            },
+            { watch: [isAuthenticated], lazy: true }
+        )
+    }
+
+    const deleteAccount = async () => {
+        await $fetch(`/api/persons/${userId.value}/soft-delete`, { method: 'PATCH' })
+    }
+
+    // ─── Expose ──────────────────────────────────────────────────────────────
+    return { person, displayName, deleteAccount, fetchPerson }
 }

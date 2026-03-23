@@ -4,7 +4,7 @@ const departure = useAddressSearch()
 const arriving = useAddressSearch()
 
 const form = reactive({
-  tripDate: null as Date | null,
+  tripDate: '',
   tripHour: '08',
   tripMinute: '00',
   availableSeats: 1,
@@ -14,11 +14,11 @@ const form = reactive({
 const loading = ref(false)
 const error = ref('')
 
+const today = new Date().toISOString().split('T')[0]
+
 const tripDatetime = computed(() => {
   if (!form.tripDate) return null
-  const d = new Date(form.tripDate)
-  d.setHours(parseInt(form.tripHour), parseInt(form.tripMinute), 0, 0)
-  return d
+  return `${form.tripDate}T${form.tripHour}:${form.tripMinute}:00`
 })
 
 const canSubmit = computed(() =>
@@ -28,7 +28,7 @@ const canSubmit = computed(() =>
 )
 
 const hours = Array.from({ length: 24 }, (_, i) => String(i).padStart(2, '0'))
-const minutes = ['00', '15', '30', '45']
+const minutes = Array.from({ length: 12 }, (_, i) => String(i * 5).padStart(2, '0'))
 
 const handleSubmit = async () => {
   if (!canSubmit.value || !tripDatetime.value) return
@@ -36,7 +36,7 @@ const handleSubmit = async () => {
   error.value = ''
   try {
     await createTrip({
-      tripDatetime: tripDatetime.value.toISOString().slice(0, 19),
+      tripDatetime: tripDatetime.value,
       availableSeats: form.availableSeats,
       smokingAllowed: form.smokingAllowed,
       departureAddressId: departure.selectedAddress.value!.id,
@@ -112,18 +112,13 @@ const handleSubmit = async () => {
           <!-- Date -->
           <div class="space-y-1">
             <label class="text-sm font-medium text-gray-700">Date de départ</label>
-            <VDatePicker v-model="form.tripDate" :min-date="new Date()">
-              <template #default="{ togglePopover }">
-                <input
-                    type="text"
-                    readonly
-                    :value="form.tripDate ? new Date(form.tripDate).toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }) : ''"
-                    placeholder="Sélectionner une date"
-                    @click="togglePopover"
-                    class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer"
-                />
-              </template>
-            </VDatePicker>
+            <input
+                v-model="form.tripDate"
+                type="date"
+                :min="today"
+                required
+                class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+            />
           </div>
 
           <!-- Heure -->
@@ -136,7 +131,7 @@ const handleSubmit = async () => {
               >
                 <option v-for="h in hours" :key="h" :value="h">{{ h }}h</option>
               </select>
-              <span class="text-gray-400">:</span>
+              <span class="text-gray-400 font-medium">:</span>
               <select
                   v-model="form.tripMinute"
                   class="flex-1 border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"

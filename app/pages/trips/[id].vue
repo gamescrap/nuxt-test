@@ -1,12 +1,7 @@
 <script setup lang="ts">
 const route = useRoute()
-const requestFetch = useRequestFetch()
-
-const { data: trip, pending } = useAsyncData(
-    `trip-${route.params.id}`,
-    () => requestFetch<Trip>(`/api/trips/${route.params.id}`),
-    { lazy: true }
-)
+const { fetchTrip } = useTrips()
+const { data: trip, pending } = fetchTrip(route.params.id)
 </script>
 
 <template>

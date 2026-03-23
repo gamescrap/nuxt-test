@@ -1,3 +1,4 @@
+// ─── State (global) ─────────────────────────────
 const useUserId = () => useState<number | null>('userId', () => null)
 const useRoles = () => useState<string[]>('roles', () => [])
 const useAuthRefreshing = () => useState<boolean>('authRefreshing', () => false)
@@ -5,18 +6,23 @@ const useTokenExp = () => useState<number | null>('tokenExp', () => null)
 const useNeedsRefresh = () => useState<boolean>('needsRefresh', () => false)
 
 export const useAuth = () => {
+    // ─── State ──────────────────────────────────────────────────────────────
     const userId = useUserId()
     const roles = useRoles()
     const isRefreshing = useAuthRefreshing()
     const tokenExp = useTokenExp()
     const needsRefresh = useNeedsRefresh()
 
+    // ─── Getters ────────────────────────────────────────────────────────────
     const isAuthenticated = computed(() => {
         if (!userId.value) return false
         if (!tokenExp.value) return false
         const now = Math.floor(Date.now() / 1000)
         return tokenExp.value > now
     })
+
+    // ─── Actions ────────────────────────────────────────────────────────────
+    const authFetch = $fetch.create({ credentials: 'include' })
 
     const _storeSession = (data: AuthResponse) => {
         userId.value = data.userId
@@ -31,8 +37,6 @@ export const useAuth = () => {
         roles.value = []
         tokenExp.value = null
     }
-
-    const authFetch = $fetch.create({ credentials: 'include' })
 
     const register = async (email: string, password: string) => {
         const data = await authFetch<AuthResponse>('/api/auth/register', {
@@ -57,7 +61,12 @@ export const useAuth = () => {
         clearSession()
     }
 
-
+    const resetPassword = async (token: string, newPassword: string) => {
+        await $fetch('/api/auth/reset-password', {
+            method: 'POST',
+            body: { token, newPassword }
+        })
+    }
 
     const reloadIfUnauthenticated = async () => {
         if (!isAuthenticated.value) {
@@ -75,6 +84,18 @@ export const useAuth = () => {
         return false
     }
 
-    return { isAuthenticated, isRefreshing,  userId, roles, tokenExp, needsRefresh,
-        handleAuthError, reloadIfUnauthenticated, storeSession, clearSession, register, login, logout }
+    const forgotPassword = async (email: string) => {
+        await $fetch('/api/auth/forgot-password', {
+            method: 'POST',
+            body: { email }
+        })
+    }
+
+    // ─── Expose ─────────────────────────────────────────────────────────────
+    return {
+        isAuthenticated, isRefreshing, userId, roles, needsRefresh,
+        storeSession, clearSession, forgotPassword,
+        register, login, logout, resetPassword,
+        reloadIfUnauthenticated, handleAuthError
+    }
 }

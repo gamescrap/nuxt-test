@@ -1,6 +1,6 @@
 <script setup lang="ts">
-const { userId, logout, isAuthenticated } = useAuth()
-const { person } = usePerson()
+const { isAuthenticated, logout } = useAuth()
+const { person, deleteAccount } = usePerson()
 const hasProfile = computed(() => !!person.value?.profile)
 
 const deleteAccountConfirm = ref(false)
@@ -9,9 +9,9 @@ const deleteAccountError   = ref('')
 
 const handleDeleteAccount = async () => {
   deleteAccountLoading.value = true
-  deleteAccountError.value   = ''
+  deleteAccountError.value = ''
   try {
-    await $fetch(`/api/persons/${userId.value}/soft-delete`, { method: 'PATCH' })
+    await deleteAccount()
     await logout()
     await navigateTo('/auth/login')
   } catch (e: any) {
