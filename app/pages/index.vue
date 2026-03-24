@@ -6,12 +6,11 @@ const { data: myTrips, error, refresh: refreshTrips, pending } = await fetchMyTr
 
 const showTrips = ref(true)
 const sortedTrips = computed(() => {
-  const now = new Date()
   const driver = (myTrips.value?.driver ?? []).map(t => ({ ...t, role: 'driver' as const }))
   const passenger = (myTrips.value?.passenger ?? []).map(t => ({ ...t, role: 'passenger' as const }))
 
   return [...driver, ...passenger]
-      .filter(t => new Date(t.tripDatetime) > now)
+      .filter(t => t.tripStatus === 'PLANNED')
       .sort((a, b) => new Date(a.tripDatetime).getTime() - new Date(b.tripDatetime).getTime())
 })
 

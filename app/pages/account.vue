@@ -51,7 +51,7 @@ const handleDeleteAccount = async () => {
           <button
               type="button"
               @click="deleteAccountConfirm = true"
-              class="text-sm text-red-500 hover:text-red-700 transition-colors underline underline-offset-2"
+              class="text-sm bg-red-50 hover:bg-red-100 text-red-600 hover:text-red-700 border border-red-200 rounded-lg px-4 py-2 transition-colors"
           >
             Supprimer mon compte
           </button>

@@ -45,3 +45,11 @@ export interface TripRequest {
     departureAddressId: number
     arrivingAddressId: number
 }
+
+export interface TripUpdateRequest {
+    tripDatetime?: string
+    availableSeats?: number
+    smokingAllowed?: boolean
+    departureAddressId?: number
+    arrivingAddressId?: number
+}

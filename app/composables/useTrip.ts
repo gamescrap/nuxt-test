@@ -1,6 +1,8 @@
+import type {TripUpdateRequest} from "#shared/types/trip";
+
 export const useTrips = () => {
     const requestFetch = useRequestFetch()
-    const { userId, isAuthenticated, handleAuthError, reloadIfUnauthenticated, storeSession } = useAuth()
+    const { userId, isAuthenticated, handleAuthError, reloadIfUnauthenticated, refreshAndRetry, storeSession } = useAuth()
 
     // ─── Actions ────────────────────────────────────────────────────────────
     const fetchTrip = (id: string | string[] | undefined) => useAsyncData(
@@ -75,6 +77,21 @@ export const useTrips = () => {
         }
     }
 
+    const updateTrip = async (id: number, body: TripUpdateRequest) => {
+        return await refreshAndRetry(() =>
+            $fetch(`/api/trips/${id}`, {
+                method: 'PATCH',
+                body,
+            }) as Promise<Trip>
+        )
+    }
+
+    const cancelTrip = async (id: number) => {
+        return await refreshAndRetry(() =>
+            $fetch(`/api/trips/${id}/cancel`, { method: 'PATCH' }) as Promise<Trip>
+        )
+    }
+
     const cancelReservation = async (tripId: number, personId: number) => {
         await $fetch(`/api/trips/${tripId}/persons/${personId}/reservation`, {
             method: 'DELETE'
@@ -82,5 +99,5 @@ export const useTrips = () => {
     }
 
     // ─── Expose ─────────────────────────────────────────────────────────────
-    return { fetchTrip, fetchTrips, fetchMyTrips, fetchDriverTrips, createTrip, cancelReservation }
+    return { fetchTrip, fetchTrips, fetchMyTrips, fetchDriverTrips, createTrip, updateTrip, cancelTrip, cancelReservation }
 }

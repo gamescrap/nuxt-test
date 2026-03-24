@@ -37,7 +37,17 @@ defineProps<{
 
     <!-- Badges -->
     <div class="flex flex-wrap gap-2 pt-1">
-      <span class="text-xs bg-gray-100 text-gray-600 rounded-full px-3 py-1">
+      <span
+          class="text-xs rounded-full px-3 py-1"
+          :class="{
+          'bg-green-100 text-green-700': trip.tripStatus === 'PLANNED',
+          'bg-gray-100 text-gray-500': trip.tripStatus === 'COMPLETED',
+          'bg-red-100 text-red-600': trip.tripStatus === 'CANCELLED',
+        }"
+      >
+        {{ trip.tripStatus === 'PLANNED' ? 'Planifié' : trip.tripStatus === 'COMPLETED' ? 'Terminé' : 'Annulé' }}
+      </span>
+          <span class="text-xs bg-gray-100 text-gray-600 rounded-full px-3 py-1">
         {{ Math.round(trip.distanceKm ?? 0) }} km
       </span>
       <span class="text-xs bg-gray-100 text-gray-600 rounded-full px-3 py-1">
