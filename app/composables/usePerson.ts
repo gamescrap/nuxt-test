@@ -2,7 +2,7 @@ import type { Person } from "#shared/types/person"
 
 export const usePerson = () => {
     const requestFetch = useRequestFetch()
-    const { userId, isAuthenticated } = useAuth()
+    const { userId, isAuthenticated, handleAuthError, reloadIfUnauthenticated, refreshAndRetry } = useAuth()
 
     // ─── State ───────────────────────────────────────────────────────────────
     const { data: person } = useAsyncData(
@@ -24,7 +24,6 @@ export const usePerson = () => {
 
     // ─── Actions ───────────────────────────────────────────────────────────────
     const fetchPerson = (id: string | string[] | undefined) => {
-        const { isAuthenticated, reloadIfUnauthenticated, handleAuthError } = useAuth()
         const requestFetch = useRequestFetch()
 
         return useAsyncData(
@@ -43,10 +42,26 @@ export const usePerson = () => {
         )
     }
 
+    const contactPerson = async (personId: string | string[] | undefined, subject: string, message: string) => {
+        if (!personId) return
+        const url = `/api/persons/${personId}/contact`
+        await refreshAndRetry(() =>
+            $fetch(url, {
+                method: 'POST',
+                body: { subject, message }
+            })
+        )
+    }
+
     const deleteAccount = async () => {
-        await $fetch(`/api/persons/${userId.value}/soft-delete`, { method: 'PATCH' })
+        const url = `/api/persons/${userId.value}/soft-delete`
+        await refreshAndRetry(() =>
+            $fetch( url, {
+                method: 'PATCH'
+            })
+        )
     }
 
     // ─── Expose ──────────────────────────────────────────────────────────────
-    return { person, displayName, deleteAccount, fetchPerson }
+    return { person, displayName, contactPerson, deleteAccount, fetchPerson }
 }

@@ -91,11 +91,32 @@ export const useAuth = () => {
         })
     }
 
+    const refreshAndRetry = async <T>(request: () => Promise<T>): Promise<T> => {
+        try {
+            return await request()
+        } catch (e: any) {
+            if (e?.status !== 401) throw e
+
+            const refreshed = await ($fetch as any)('/api/auth/refresh', {
+                method: 'POST',
+                ignoreResponseError: true
+            }) as AuthResponse
+
+            if (!refreshed?.userId) {
+                await navigateTo(useRoute().fullPath, { replace: true, external: true })
+                throw e
+            }
+
+            storeSession(refreshed)
+            return await request()
+        }
+    }
+
     // ─── Expose ─────────────────────────────────────────────────────────────
     return {
         isAuthenticated, isRefreshing, userId, roles, needsRefresh,
         storeSession, clearSession, forgotPassword,
         register, login, logout, resetPassword,
-        reloadIfUnauthenticated, handleAuthError
+        reloadIfUnauthenticated, handleAuthError, refreshAndRetry
     }
 }

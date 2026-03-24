@@ -15,6 +15,7 @@ const sortedTrips = computed(() => {
       .sort((a, b) => new Date(a.tripDatetime).getTime() - new Date(b.tripDatetime).getTime())
 })
 
+
 const handleRefresh = async () => {
   showTrips.value = false
   await refreshTrips()
@@ -50,7 +51,7 @@ const handleRefresh = async () => {
             :to="`/trips/${trip.id}`"
             class="block"
         >
-          <TripMinimalCard :trip="trip" :index="index" role="driver" />
+          <TripMinimalCard :trip="trip" :index="index" :role="trip.role" />
         </NuxtLink>
       </ul>
 

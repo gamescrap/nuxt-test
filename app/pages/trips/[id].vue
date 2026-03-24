@@ -1,7 +1,7 @@
 <script setup lang="ts">
 const route = useRoute()
 const { fetchTrip } = useTrips()
-const { data: trip, pending } = fetchTrip(route.params.id)
+const { data: trip, pending, refresh } = fetchTrip(route.params.id)
 </script>
 
 <template>
@@ -46,6 +46,8 @@ const { data: trip, pending } = fetchTrip(route.params.id)
               v-for="reservation in trip.reservations"
               :key="reservation.id"
               :reservation="reservation"
+              :trip-id="trip.id"
+              @cancelled="refresh()"
           />
         </div>
 

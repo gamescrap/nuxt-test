@@ -1,7 +1,26 @@
 <script setup lang="ts">
-defineProps<{
+const { cancelReservation } = useTrips()
+
+const props = defineProps<{
   reservation: Reservation
+  tripId: number
 }>()
+
+const emit = defineEmits<{
+  'cancelled': []
+}>()
+
+const loading = ref(false)
+
+const handleCancel = async () => {
+  loading.value = true
+  try {
+    await cancelReservation(props.tripId, props.reservation.passenger.id)
+    emit('cancelled')
+  } finally {
+    loading.value = false
+  }
+}
 </script>
 
 <template>
@@ -45,8 +64,11 @@ defineProps<{
         {{ reservation.reservationStatus === 'CONFIRMED' ? 'Confirmé' : reservation.reservationStatus }}
       </span>
       <button
+          v-if="reservation.reservationStatus === 'CONFIRMED'"
           type="button"
-          class="text-gray-300 hover:text-red-400 transition-colors p-1"
+          @click="handleCancel"
+          :disabled="loading"
+          class="text-gray-300 hover:text-red-400 disabled:opacity-50 transition-colors p-1"
           title="Supprimer la réservation"
       >
         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">

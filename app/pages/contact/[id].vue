@@ -1,15 +1,24 @@
 <script setup lang="ts">
 const route = useRoute()
-const { fetchPerson } = usePerson()
+const { fetchPerson, contactPerson } = usePerson()
 const { data: person } = fetchPerson(route.params.id)
 
 const form = reactive({ subject: '', message: '' })
 const loading = ref(false)
 const success = ref(false)
+const error = ref('')
 
 const handleSubmit = async () => {
-  // TODO : implémenter quand l'endpoint sera disponible
-  success.value = true
+  loading.value = true
+  error.value = ''
+  try {
+    await contactPerson(route.params.id, form.subject, form.message)
+    success.value = true
+  } catch (e: any) {
+    error.value = getErrorMessage(e)
+  } finally {
+    loading.value = false
+  }
 }
 </script>
 
@@ -45,9 +54,9 @@ const handleSubmit = async () => {
         Message envoyé avec succès.
       </div>
 
-      <form v-else @submit.prevent="handleSubmit" class="bg-white rounded-xl border border-gray-200 p-4 space-y-4">
-        <h2 class="text-sm font-semibold text-gray-900">Envoyer un message</h2>
+      <p v-if="error" class="text-xs text-red-500">{{ error }}</p>
 
+      <form v-else @submit.prevent="handleSubmit" class="bg-white rounded-xl border border-gray-200 p-4 space-y-4">
         <div class="space-y-1">
           <label class="text-sm font-medium text-gray-700">Sujet</label>
           <input
