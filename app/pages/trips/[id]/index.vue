@@ -1,11 +1,17 @@
 <script setup lang="ts">
 const route = useRoute()
+const { userId, roles } = useAuth()
 const { fetchTrip, cancelTrip } = useTrips()
 const { data: trip, pending, refresh } = fetchTrip(route.params.id)
 
 const cancelConfirm = ref(false)
 const cancelLoading = ref(false)
 const cancelError = ref('')
+
+const isDriverOrAdmin = computed(() =>
+    trip.value?.driver != null &&
+    (trip.value.driver.id === userId.value || roles.value.includes('ROLE_ADMIN'))
+)
 
 const handleCancelTrip = async () => {
   cancelLoading.value = true
@@ -33,14 +39,14 @@ const handleCancelTrip = async () => {
         <span class="text-gray-900 font-medium">Détail du trajet</span>
         <div class="ml-auto flex items-center gap-2">
           <NuxtLink
-              v-if="trip?.tripStatus === 'PLANNED'"
+              v-if="trip?.tripStatus === 'PLANNED' && isDriverOrAdmin"
               :to="`/trips/${route.params.id}/edit`"
               class="text-sm text-blue-600 hover:text-blue-800 transition-colors"
           >
             Modifier
           </NuxtLink>
           <button
-              v-if="trip?.tripStatus === 'PLANNED'"
+              v-if="trip?.tripStatus === 'PLANNED' && isDriverOrAdmin"
               type="button"
               @click="cancelConfirm = true"
               class="text-sm bg-red-50 hover:bg-red-100 text-red-600 hover:text-red-700 border border-red-200 rounded-lg px-3 py-1.5 transition-colors"

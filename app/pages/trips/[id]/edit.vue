@@ -1,7 +1,17 @@
 <script setup lang="ts">
 const route = useRoute()
+const {userId, roles} = useAuth()
 const { fetchTrip, updateTrip } = useTrips()
 const { data: trip } = fetchTrip(route.params.id)
+
+
+watch(trip, (val) => {
+  if (!val) return
+  const isDriverOrAdmin = val.driver.id === userId.value || roles.value.includes('ROLE_ADMIN')
+  if (!isDriverOrAdmin) {
+    navigateTo(`/trips/${route.params.id}`)
+  }
+}, { immediate: true })
 
 const departure = useAddressSearch()
 const arriving = useAddressSearch()
@@ -70,7 +80,7 @@ const handleSubmit = async () => {
 </script>
 
 <template>
-  <main class="min-h-[calc(100vh-113px)] md:min-h-[calc(100vh-130px)] bg-gray-50">
+  <main v-if="!trip || trip.driver.id === userId" class="min-h-[calc(100vh-113px)] md:min-h-[calc(100vh-130px)] bg-gray-50">
     <div class="max-w-2xl mx-auto px-4 py-6 space-y-4">
 
       <nav class="flex items-center gap-2 text-sm mb-2">

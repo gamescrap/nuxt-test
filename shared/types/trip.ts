@@ -1,4 +1,4 @@
-import type {PersonProfile} from "#shared/types/person";
+import type {Person} from "#shared/types/person";
 import type {Reservation} from "#shared/types/reservation";
 import type {Address} from "#shared/types/address";
 
@@ -14,7 +14,7 @@ export interface Trip {
     updatedAt: string
     departureAddress: Address
     arrivingAddress: Address
-    driver: PersonProfile
+    driver: Person
     reservations: Reservation[]
 }
 
