@@ -1,16 +1,14 @@
 <script setup lang="ts">
 const { isAuthenticated, handleAuthError } = useAuth()
-const { fetchMyTrips } = useTrips()
+const { fetchDriverTrips } = useTrips()
 
-const { data: myTrips, error, refresh: refreshTrips, pending } = await fetchMyTrips()
+const { data: myTrips, error, refresh: refreshTrips, pending } = await fetchDriverTrips()
 
 const activeTab = ref<'upcoming' | 'past'>('upcoming')
 const showTrips = ref(true)
 
 const allTrips = computed(() => {
-  const driver = (myTrips.value?.driver ?? []).map(t => ({ ...t, role: 'driver' as const }))
-  const passenger = (myTrips.value?.passenger ?? []).map(t => ({ ...t, role: 'passenger' as const }))
-  return [...driver, ...passenger]
+  return (myTrips.value ?? []).map(t => ({ ...t, role: 'driver' as const }))
 })
 
 const sortedTrips = computed(() => {
@@ -38,7 +36,7 @@ const handleRefresh = async () => {
     <div class="max-w-2xl mx-auto px-4 py-6 space-y-6">
 
       <div class="flex items-center justify-between">
-        <h1 class="text-xl font-semibold text-gray-900">Mes trajets et réservations</h1>
+        <h1 class="text-xl font-semibold text-gray-900">Mes trajets</h1>
         <button @click="handleRefresh" class="text-sm text-blue-600 hover:text-blue-800 transition-colors">
           Actualiser
         </button>

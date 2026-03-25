@@ -23,7 +23,16 @@ export const useTrips = () => {
 
     const fetchTrips = (filters: TripFilters = {}) => useAsyncData(
         `trips-${JSON.stringify(filters)}`,
-        () => requestFetch<Trip[]>('/api/trips', { params: filters })
+        async () => {
+            if (await reloadIfUnauthenticated()) return []
+            try {
+                return await requestFetch<TripMinimal[]>('/api/trips', { params: filters })
+            } catch (e: any) {
+                await handleAuthError(e)
+                return []
+            }
+        },
+        { watch: [isAuthenticated], lazy: true }
     )
 
     const fetchMyTrips = () => useAsyncData(

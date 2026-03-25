@@ -1,4 +1,7 @@
 <script setup lang="ts">
+const departure = useAddressSearch()
+const arriving = useAddressSearch()
+
 const departureCity = ref('')
 const arrivalCity = ref('')
 const tripDate = ref('')
@@ -8,8 +11,8 @@ const today = new Date().toISOString().split('T')[0]
 const hours = Array.from({ length: 24 }, (_, i) => String(i).padStart(2, '0'))
 
 const canSearch = computed(() =>
-    departureCity.value.trim().length > 0 &&
-    arrivalCity.value.trim().length > 0 &&
+    departure.selectedCity.value !== null &&
+    arriving.selectedCity.value !== null &&
     tripDate.value.length > 0
 )
 
@@ -18,8 +21,8 @@ const handleSearch = () => {
   navigateTo({
     path: '/search/results',
     query: {
-      startingCity: departureCity.value,
-      arrivalCity: arrivalCity.value,
+      startingCity: departure.selectedCity.value!.name,
+      arrivalCity: arriving.selectedCity.value!.name,
       tripDate: tripDate.value,
       fromHour: fromHour.value,
     }
@@ -37,27 +40,25 @@ const handleSearch = () => {
 
         <div class="bg-white rounded-xl border border-gray-200 p-4 space-y-4">
 
-          <div class="space-y-1">
-            <label class="text-sm font-medium text-gray-700">Ville de départ</label>
-            <input
-                v-model="departureCity"
-                type="text"
-                required
-                placeholder="Ex: Vannes"
-                class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
-            />
-          </div>
+          <CitySearchInput
+              label="Ville de départ"
+              :city-query="departure.cityQuery.value"
+              :city-suggestions="departure.citySuggestions.value"
+              :selected-city="departure.selectedCity.value"
+              :loading-cities="departure.loadingCities.value"
+              @update:city-query="q => { departure.cityQuery.value = q; departure.searchCities(q) }"
+              @select-city="departure.selectCity"
+          />
 
-          <div class="space-y-1">
-            <label class="text-sm font-medium text-gray-700">Ville d'arrivée</label>
-            <input
-                v-model="arrivalCity"
-                type="text"
-                required
-                placeholder="Ex: Séné"
-                class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
-            />
-          </div>
+          <CitySearchInput
+              label="Ville d'arrivée"
+              :city-query="arriving.cityQuery.value"
+              :city-suggestions="arriving.citySuggestions.value"
+              :selected-city="arriving.selectedCity.value"
+              :loading-cities="arriving.loadingCities.value"
+              @update:city-query="q => { arriving.cityQuery.value = q; arriving.searchCities(q) }"
+              @select-city="arriving.selectCity"
+          />
 
           <div class="space-y-1">
             <label class="text-sm font-medium text-gray-700">Date</label>

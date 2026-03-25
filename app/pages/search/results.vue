@@ -1,32 +1,20 @@
 <script setup lang="ts">
 const route = useRoute()
-const { searchTrips, toggleReservation } = useTrips()
+const { fetchTrips } = useTrips()
 const { userId } = useAuth()
 
-const params = {
+const params: TripFilters = {
   startingCity: route.query.startingCity as string,
   arrivalCity: route.query.arrivalCity as string,
   tripDate: route.query.tripDate as string,
   fromHour: route.query.fromHour as string,
+  isUpcoming: true,
 }
 
-const { data: trips, pending } = searchTrips(params)
+const { data: trips, pending } = fetchTrips(params)
 
 const toggleLoading = ref<number | null>(null)
 const toggleError = ref('')
-
-const handleToggle = async (tripId: number) => {
-  toggleLoading.value = tripId
-  toggleError.value = ''
-  try {
-    await toggleReservation(tripId)
-    await refreshNuxtData(`search-trips-${JSON.stringify(params)}`)
-  } catch (e: any) {
-    toggleError.value = getErrorMessage(e)
-  } finally {
-    toggleLoading.value = null
-  }
-}
 </script>
 
 <template>
@@ -57,32 +45,14 @@ const handleToggle = async (tripId: number) => {
       </p>
 
       <ul v-else class="space-y-3">
-        <li
+        <NuxtLink
             v-for="(trip, index) in trips"
             :key="trip.id"
-            class="space-y-2"
+            :to="`/search/${trip.id}`"
+            class="block"
         >
           <TripMinimalCard :trip="trip" :index="index" />
-
-          <div class="flex justify-end px-1">
-            <button
-                v-if="trip.driver.id !== userId && trip.availableSeats > 0"
-                type="button"
-                @click="handleToggle(trip.id)"
-                :disabled="toggleLoading === trip.id"
-                class="text-sm bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white font-medium rounded-lg px-4 py-2 transition-colors"
-            >
-              {{ toggleLoading === trip.id ? 'En cours...' : 'Réserver' }}
-            </button>
-            <span v-else-if="trip.availableSeats === 0" class="text-xs text-gray-400 py-2">
-              Complet
-            </span>
-          </div>
-
-          <p v-if="toggleError && toggleLoading === null" class="text-xs text-red-500 px-1">
-            {{ toggleError }}
-          </p>
-        </li>
+        </NuxtLink>
       </ul>
 
     </div>

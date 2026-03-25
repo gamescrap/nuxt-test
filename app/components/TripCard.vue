@@ -66,5 +66,25 @@ defineProps<{
       </span>
     </div>
 
+    <!-- Véhicule -->
+    <!-- Véhicule -->
+    <div v-if="trip.vehicle" class="pt-2 border-t border-gray-100 space-y-1">
+      <p class="text-xs font-semibold text-gray-700 mb-2">Véhicule</p>
+      <p class="text-sm">
+        <span class="font-semibold text-gray-700">Marque : </span>
+        <span class="text-gray-500">{{ trip.vehicle.brand.name }}</span>
+      </p>
+      <p class="text-sm">
+        <span class="font-semibold text-gray-700">Modèle : </span>
+        <span class="text-gray-500">{{ trip.vehicle.model }}</span>
+      </p>
+      <div v-if="trip.vehicle.description" class="text-sm">
+        <p v-if="trip.vehicle.description" class="text-sm">
+          <span class="font-semibold text-gray-700">Description : </span>
+          <span class="text-gray-500">{{ trip.vehicle.description }}</span>
+        </p>
+      </div>
+    </div>
+
   </div>
 </template>
