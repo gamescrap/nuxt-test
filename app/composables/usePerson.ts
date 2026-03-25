@@ -62,6 +62,21 @@ export const usePerson = () => {
         )
     }
 
+    const fetchMyReservations = () => useAsyncData(
+        'passenger-reservations',
+        async () => {
+            if (!userId.value) return []
+            if (await reloadIfUnauthenticated()) return []
+            try {
+                return await requestFetch<ReservationResponse[]>(`/api/persons/${userId.value}/trips-passenger`)
+            } catch (e: any) {
+                await handleAuthError(e)
+                return []
+            }
+        },
+        { watch: [isAuthenticated], lazy: true }
+    )
+
     // ─── Expose ──────────────────────────────────────────────────────────────
-    return { person, displayName, contactPerson, deleteAccount, fetchPerson }
+    return { person, displayName, contactPerson, deleteAccount, fetchPerson, fetchMyReservations }
 }

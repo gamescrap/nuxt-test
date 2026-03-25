@@ -1,4 +1,5 @@
 import type {TripUpdateRequest} from "#shared/types/trip";
+import type {ReservationResponse} from "#shared/types/reservation";
 
 export const useTrips = () => {
     const requestFetch = useRequestFetch()
@@ -98,6 +99,36 @@ export const useTrips = () => {
         })
     }
 
+    const toggleReservation = async (tripId: number) => {
+        return await refreshAndRetry(() =>
+            $fetch(`/api/trips/${tripId}/persons`, {
+                method: 'POST',
+            }) as Promise<ReservationResponse>
+        )
+    }
+
+    const searchTrips = (params: {
+        startingCity?: string
+        arrivalCity?: string
+        tripDate?: string
+        fromHour?: string
+    }) => useAsyncData(
+        `search-trips-${JSON.stringify(params)}`,
+        async () => {
+            if (await reloadIfUnauthenticated()) return []
+            try {
+                return await requestFetch<TripMinimal[]>('/api/trips', { params })
+            } catch (e: any) {
+                await handleAuthError(e)
+                return []
+            }
+        },
+        { watch: [isAuthenticated], lazy: true, immediate: false }
+    )
+
     // ─── Expose ─────────────────────────────────────────────────────────────
-    return { fetchTrip, fetchTrips, fetchMyTrips, fetchDriverTrips, createTrip, updateTrip, cancelTrip, cancelReservation }
+    return { fetchTrip, fetchTrips, fetchMyTrips,
+        fetchDriverTrips, createTrip, updateTrip,
+        cancelTrip, cancelReservation, toggleReservation, searchTrips
+    }
 }
