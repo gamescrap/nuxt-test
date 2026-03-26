@@ -6,8 +6,15 @@ const { data: myTrips, error, refresh: refreshTrips, pending } = await fetchMyTr
 
 const showTrips = ref(true)
 const sortedTrips = computed(() => {
-  const driver = (myTrips.value?.driver ?? []).map(t => ({ ...t, role: 'driver' as const }))
-  const passenger = (myTrips.value?.passenger ?? []).map(t => ({ ...t, role: 'passenger' as const }))
+  const driver = (myTrips.value?.driver ?? []).map(t => ({
+    ...t,
+    role: 'driver' as const
+  }))
+
+  const passenger = (myTrips.value?.passenger ?? []).map(t => ({
+    ...t.trip,
+    role: 'passenger' as const
+  }))
 
   return [...driver, ...passenger]
       .filter(t => t.tripStatus === 'PLANNED')
@@ -47,7 +54,7 @@ const handleRefresh = async () => {
         <NuxtLink
             v-for="(trip, index) in sortedTrips"
             :key="trip.id"
-            :to="`/trips/${trip.id}`"
+            :to="`/reservations/${trip.id}`"
             class="block"
         >
           <TripMinimalCard :trip="trip" :index="index" :role="trip.role" />

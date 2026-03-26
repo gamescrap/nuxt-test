@@ -2,6 +2,8 @@
 import { formatTripDate } from '#shared/utils/date'
 import { Cigarette, CigaretteOff } from 'lucide-vue-next'
 
+const { userId } = useAuth()
+
 defineProps<{
   trip: Trip
 }>()
@@ -66,9 +68,37 @@ defineProps<{
       </span>
     </div>
 
+    <!-- Conducteur -->
+    <div v-if="userId !== trip.driver.id" class="pt-2 border-t border-gray-100 space-y-3">
+      <p class="text-xs font-semibold text-gray-700">Conducteur</p>
+
+      <div class="flex items-center justify-between gap-3">
+        <div class="flex flex-col gap-2">
+          <!-- Avatar + nom -->
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center font-semibold shrink-0 text-sm">
+              {{ (trip.driver.profile?.firstname?.[0] ?? '') + (trip.driver.profile?.lastname?.[0] ?? '') }}
+            </div>
+            <p class="text-sm font-medium text-gray-900">
+              {{ trip.driver.profile ? `${trip.driver.profile.firstname} ${trip.driver.profile.lastname}` : 'Profil incomplet' }}
+            </p>
+          </div>
+
+          <!-- Coordonnées -->
+          <div class="space-y-0.5">
+            <p class="text-sm text-gray-500">
+              <span class="font-semibold text-gray-700">Email : </span>{{ trip.driver.email }}
+            </p>
+            <p v-if="trip.driver.profile?.phone" class="text-sm text-gray-500">
+              <span class="font-semibold text-gray-700">Téléphone : </span>{{ trip.driver.profile.phone }}
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- Véhicule -->
-    <!-- Véhicule -->
-    <div v-if="trip.vehicle" class="pt-2 border-t border-gray-100 space-y-1">
+    <div v-if="trip.vehicle && userId !== trip.driver.id" class="pt-2 border-t border-gray-100 space-y-1">
       <p class="text-xs font-semibold text-gray-700 mb-2">Véhicule</p>
       <p class="text-sm">
         <span class="font-semibold text-gray-700">Marque : </span>

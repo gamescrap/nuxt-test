@@ -71,70 +71,97 @@ const doToggle = async () => {
       <template v-else-if="trip">
         <TripCard :trip="trip" />
 
+        <div class="space-y-3">
+          <h2 class="text-base font-semibold text-gray-900">
+            Passagers ({{ trip.reservations.length }})
+          </h2>
+          <p v-if="!trip.reservations.length" class="text-sm text-gray-500 text-center py-4">
+            Aucun passager pour ce trajet.
+          </p>
+          <PassengerCard
+              v-for="reservation in trip.reservations"
+              :key="reservation.id"
+              :reservation="reservation"
+              :trip-id="trip.id"
+              @cancelled="refresh()"
+          />
+        </div>
+
         <!-- Statut de ma réservation -->
         <div v-if="myReservation" class="bg-white rounded-xl border border-gray-200 p-4 space-y-3">
           <h2 class="text-sm font-semibold text-gray-900">Ma réservation</h2>
           <div class="flex items-center justify-between">
-            <span
-                class="text-xs rounded-full px-3 py-1"
-                :class="myReservation.reservationStatus === 'CONFIRMED'
-                  ? 'bg-green-100 text-green-700'
-                  : 'bg-red-100 text-red-600'"
-            >
-              {{ myReservation.reservationStatus === 'CONFIRMED' ? 'Confirmée' : 'Annulée' }}
-            </span>
+    <span
+        class="text-xs rounded-full px-3 py-1"
+        :class="myReservation.reservationStatus === 'CONFIRMED'
+          ? 'bg-green-100 text-green-700'
+          : 'bg-red-100 text-red-600'"
+    >
+      {{ myReservation.reservationStatus === 'CONFIRMED' ? 'Confirmée' : 'Annulée' }}
+    </span>
 
-            <button
-                v-if="canToggle"
-                type="button"
-                @click="handleToggle"
-                :disabled="toggleLoading"
-                class="text-sm font-medium rounded-lg px-4 py-2 transition-colors disabled:opacity-50"
-                :class="myReservation.reservationStatus === 'CONFIRMED'
-                  ? 'bg-red-50 hover:bg-red-100 text-red-600 border border-red-200'
-                  : 'bg-blue-600 hover:bg-blue-700 text-white'"
-            >
-              {{ toggleLoading
-                ? 'En cours...'
-                : myReservation.reservationStatus === 'CONFIRMED'
-                    ? 'Annuler ma réservation'
-                    : 'Réactiver ma réservation'
-              }}
-            </button>
+            <div class="flex items-center gap-2">
+              <!-- Bouton contacter -->
+              <NuxtLink
+                  :to="`/contact/${trip.driver.id}`"
+                  class="text-sm font-medium rounded-lg px-4 py-2 transition-colors bg-gray-100 hover:bg-gray-200 text-gray-700 border border-gray-200"
+              >
+                Contacter le conducteur
+              </NuxtLink>
 
-            <!-- Modal confirmation annulation -->
-            <Teleport to="body">
-              <Transition name="modal">
-                <div v-if="cancelConfirm" class="fixed inset-0 z-50 flex items-center justify-center px-4">
-                  <div class="absolute inset-0 bg-black/40" @click="cancelConfirm = false" />
-                  <div class="relative bg-white rounded-2xl shadow-xl p-6 w-full max-w-sm space-y-4">
-                    <h3 class="text-base font-semibold text-gray-900">Annuler la réservation</h3>
-                    <p class="text-sm text-gray-500">Voulez-vous vraiment annuler cette réservation ?</p>
-                    <p v-if="toggleError" class="text-xs text-red-500">{{ toggleError }}</p>
-                    <div class="flex gap-3 pt-2">
-                      <button
-                          type="button"
-                          @click="doToggle"
-                          :disabled="toggleLoading"
-                          class="flex-1 bg-red-600 hover:bg-red-700 disabled:opacity-50 text-white text-sm font-medium rounded-lg py-2.5 transition-colors"
-                      >
-                        {{ toggleLoading ? 'Annulation...' : 'Confirmer' }}
-                      </button>
-                      <button
-                          type="button"
-                          @click="cancelConfirm = false"
-                          class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm font-medium rounded-lg py-2.5 transition-colors"
-                      >
-                        Retour
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </Transition>
-            </Teleport>
+              <!-- Bouton annuler/réactiver -->
+              <button
+                  v-if="canToggle"
+                  type="button"
+                  @click="handleToggle"
+                  :disabled="toggleLoading"
+                  class="text-sm font-medium rounded-lg px-4 py-2 transition-colors disabled:opacity-50"
+                  :class="myReservation.reservationStatus === 'CONFIRMED'
+            ? 'bg-red-50 hover:bg-red-100 text-red-600 border border-red-200'
+            : 'bg-blue-600 hover:bg-blue-700 text-white'"
+              >
+                {{ toggleLoading
+                  ? 'En cours...'
+                  : myReservation.reservationStatus === 'CONFIRMED'
+                      ? 'Annuler ma réservation'
+                      : 'Réactiver ma réservation'
+                }}
+              </button>
+            </div>
           </div>
           <p v-if="toggleError" class="text-xs text-red-500">{{ toggleError }}</p>
         </div>
+
+        <Teleport to="body">
+          <Transition name="modal">
+            <div v-if="cancelConfirm" class="fixed inset-0 z-50 flex items-center justify-center px-4">
+              <div class="absolute inset-0 bg-black/40" @click="cancelConfirm = false" />
+              <div class="relative bg-white rounded-2xl shadow-xl p-6 w-full max-w-sm space-y-4">
+                <h3 class="text-base font-semibold text-gray-900">Annuler la réservation</h3>
+                <p class="text-sm text-gray-500">Voulez-vous vraiment annuler cette réservation ?</p>
+                <p v-if="toggleError" class="text-xs text-red-500">{{ toggleError }}</p>
+                <div class="flex gap-3 pt-2">
+                  <button
+                      type="button"
+                      @click="doToggle"
+                      :disabled="toggleLoading"
+                      class="flex-1 bg-red-600 hover:bg-red-700 disabled:opacity-50 text-white text-sm font-medium rounded-lg py-2.5 transition-colors"
+                  >
+                    {{ toggleLoading ? 'Annulation...' : 'Confirmer' }}
+                  </button>
+                  <button
+                      type="button"
+                      @click="cancelConfirm = false"
+                      class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm font-medium rounded-lg py-2.5 transition-colors"
+                  >
+                    Retour
+                  </button>
+                </div>
+              </div>
+            </div>
+          </Transition>
+        </Teleport>
+
       </template>
     </div>
   </main>

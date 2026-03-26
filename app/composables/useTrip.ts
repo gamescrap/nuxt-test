@@ -42,7 +42,7 @@ export const useTrips = () => {
             if (await reloadIfUnauthenticated()) return null
             try {
                 const [passenger, driver] = await Promise.all([
-                    requestFetch<TripMinimal[]>(`/api/persons/${userId.value}/trips-passenger`),
+                    requestFetch<ReservationResponse[]>(`/api/persons/${userId.value}/trips-passenger`),
                     requestFetch<TripMinimal[]>(`/api/persons/${userId.value}/trips-driver`),
                 ])
                 return { passenger, driver }
