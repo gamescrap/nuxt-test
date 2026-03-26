@@ -112,11 +112,22 @@ export const useAuth = () => {
         }
     }
 
+    const refreshSession = async () => {
+        const refreshed = await ($fetch as any)('/api/auth/refresh', {
+            method: 'POST',
+            ignoreResponseError: true
+        }) as AuthResponse
+
+        if (refreshed?.userId) {
+            _storeSession(refreshed)
+        }
+    }
+
     // ─── Expose ─────────────────────────────────────────────────────────────
     return {
         isAuthenticated, isRefreshing, userId, roles, needsRefresh,
         storeSession, clearSession, forgotPassword,
         register, login, logout, resetPassword,
-        reloadIfUnauthenticated, handleAuthError, refreshAndRetry
+        reloadIfUnauthenticated, handleAuthError, refreshAndRetry, refreshSession
     }
 }
