@@ -1,28 +1,143 @@
-export const useTrips = (filters: TripFilters = {}) => {
+import type {TripUpdateRequest} from "#shared/types/trip";
+import type {ReservationResponse} from "#shared/types/reservation";
+
+export const useTrips = () => {
     const requestFetch = useRequestFetch()
-    const { userId, isRefreshing } = useAuth()
+    const { userId, isAuthenticated, handleAuthError, reloadIfUnauthenticated, refreshAndRetry, storeSession } = useAuth()
+
+    // ─── Actions ────────────────────────────────────────────────────────────
+    const fetchTrip = (id: string | string[] | undefined) => useAsyncData(
+        `trip-${id}`,
+        async () => {
+            if (!id) return null
+            if (await reloadIfUnauthenticated()) return null
+            try {
+                return await requestFetch<Trip>(`/api/trips/${id}`)
+            } catch (e: any) {
+                await handleAuthError(e)
+                return null
+            }
+        },
+        { watch: [isAuthenticated], lazy: true }
+    )
 
     const fetchTrips = (filters: TripFilters = {}) => useAsyncData(
         `trips-${JSON.stringify(filters)}`,
-        () => requestFetch<Trip[]>('/api/trips', {
-            params: filters
-        })
+        async () => {
+            if (await reloadIfUnauthenticated()) return []
+            try {
+                return await requestFetch<TripMinimal[]>('/api/trips', { params: filters })
+            } catch (e: any) {
+                await handleAuthError(e)
+                return []
+            }
+        },
+        { watch: [isAuthenticated], lazy: true }
     )
 
     const fetchMyTrips = () => useAsyncData(
         'my-trips',
         async () => {
             if (!userId.value) return null
-            if (isRefreshing.value) return null
-
-            const [passenger, driver] = await Promise.all([
-                requestFetch<TripMinimal[]>(`/api/persons/${userId.value}/trips-passenger`),
-                requestFetch<TripMinimal[]>(`/api/persons/${userId.value}/trips-driver`),
-            ])
-            return { passenger, driver }
+            if (await reloadIfUnauthenticated()) return null
+            try {
+                const [passenger, driver] = await Promise.all([
+                    requestFetch<ReservationResponse[]>(`/api/persons/${userId.value}/trips-passenger`),
+                    requestFetch<TripMinimal[]>(`/api/persons/${userId.value}/trips-driver`),
+                ])
+                return { passenger, driver }
+            } catch (e: any) {
+                await handleAuthError(e)
+                return null
+            }
         },
-        { watch: [isRefreshing], lazy: true }
+        { watch: [isAuthenticated], lazy: true }
     )
 
-    return { fetchTrips, fetchMyTrips }
+    const fetchDriverTrips = () => useAsyncData(
+        'driver-trips',
+        async () => {
+            if (!userId.value) return []
+            if (await reloadIfUnauthenticated()) return null
+            try {
+                return await requestFetch<TripMinimal[]>(`/api/persons/${userId.value}/trips-driver`)
+            } catch (e: any) {
+                await handleAuthError(e)
+                return null
+            }
+        },
+        { watch: [isAuthenticated], lazy: true }
+    )
+
+    const createTrip = async (body: TripRequest) => {
+        try {
+            return await $fetch<Trip>('/api/trips', { method: 'POST', body })
+        } catch (e: any) {
+            if (e?.status === 401) {
+                const refreshed = await $fetch<AuthResponse>('/api/auth/refresh', {
+                    method: 'POST',
+                    ignoreResponseError: true
+                })
+                if (refreshed?.userId) {
+                    storeSession(refreshed)
+                    return $fetch<Trip>('/api/trips', { method: 'POST', body })
+                }
+            }
+            throw e
+        }
+    }
+
+    const updateTrip = async (id: number, body: TripUpdateRequest) => {
+        return await refreshAndRetry(() =>
+            $fetch(`/api/trips/${id}`, {
+                method: 'PATCH',
+                body,
+            }) as Promise<Trip>
+        )
+    }
+
+    const cancelTrip = async (id: number) => {
+        return await refreshAndRetry(() =>
+            $fetch(`/api/trips/${id}/cancel`, { method: 'PATCH' }) as Promise<Trip>
+        )
+    }
+
+    const cancelReservation = async (tripId: number, personId: number) => {
+        await $fetch(`/api/trips/${tripId}/persons/${personId}/reservation`, {
+            method: 'DELETE'
+        })
+    }
+
+    const toggleReservation = async (tripId: number) => {
+        return await refreshAndRetry(() =>
+            $fetch(`/api/trips/${tripId}/persons`, {
+                method: 'POST',
+            }) as Promise<ReservationResponse>
+        )
+    }
+
+    const searchTrips = (params: {
+        startingCity?: string
+        arrivalCity?: string
+        tripDate?: string
+        fromHour?: string
+    }) => useAsyncData(
+        `search-trips-${JSON.stringify(params)}`,
+        async () => {
+            if (await reloadIfUnauthenticated()) return []
+            try {
+                return await requestFetch<TripMinimal[]>('/api/trips', { params })
+            } catch (e: any) {
+                await handleAuthError(e)
+                return []
+            }
+        },
+        { watch: [isAuthenticated], lazy: true, immediate: false }
+    )
+
+    // ─── Expose ─────────────────────────────────────────────────────────────
+    return { fetchTrip, fetchTrips, fetchMyTrips,
+        fetchDriverTrips, createTrip, updateTrip,
+        cancelTrip, cancelReservation, toggleReservation, searchTrips
+    }
 }

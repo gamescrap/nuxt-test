@@ -1,6 +1,6 @@
 <script setup lang="ts">
-const { userId, logout, isAuthenticated } = useAuth()
-const { person } = usePerson()
+const { isAuthenticated, logout } = useAuth()
+const { person, deleteAccount } = usePerson()
 const hasProfile = computed(() => !!person.value?.profile)
 
 const deleteAccountConfirm = ref(false)
@@ -9,9 +9,9 @@ const deleteAccountError   = ref('')
 
 const handleDeleteAccount = async () => {
   deleteAccountLoading.value = true
-  deleteAccountError.value   = ''
+  deleteAccountError.value = ''
   try {
-    await $fetch(`/api/persons/${userId.value}/soft-delete`, { method: 'PATCH' })
+    await deleteAccount()
     await logout()
     await navigateTo('/auth/login')
   } catch (e: any) {
@@ -51,7 +51,7 @@ const handleDeleteAccount = async () => {
           <button
               type="button"
               @click="deleteAccountConfirm = true"
-              class="text-sm text-red-500 hover:text-red-700 transition-colors underline underline-offset-2"
+              class="text-sm bg-red-50 hover:bg-red-100 text-red-600 hover:text-red-700 border border-red-200 rounded-lg px-4 py-2 transition-colors"
           >
             Supprimer mon compte
           </button>

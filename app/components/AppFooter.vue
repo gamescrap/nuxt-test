@@ -1,14 +1,14 @@
 <script setup lang="ts">
-import { Home, Navigation, Search, BookMarked, User, LogOut } from 'lucide-vue-next'
+import { Home, Navigation, Search, BookMarked, User } from 'lucide-vue-next'
 
 const { isAuthenticated } = useAuth()
 
 const links = [
-  { to: '/',             label: 'Accueil',           icon: Home       },
-  { to: '/',   label: 'Mes trajets',        icon: Navigation },
-  { to: '/', label: 'Trouver un trajet',  icon: Search     },
-  { to: '/', label: 'Mes réservations',   icon: BookMarked },
-  { to: '/account',      label: 'Mon compte',         icon: User       },
+  { to: '/', label: 'Accueil', icon: Home },
+  { to: '/trips', label: 'Mes trajets', icon: Navigation },
+  { to: '/search', label: 'Trouver un trajet', icon: Search },
+  { to: '/reservations', label: 'Mes réservations', icon: BookMarked },
+  { to: '/account', label: 'Mon compte', icon: User },
 ]
 </script>
 

@@ -24,6 +24,8 @@ export default defineEventHandler(async (event) => {
             body: { refreshToken },
         })
 
+        console.log("MIDDLEWARE SERVER")
+
         setAuthCookies(event, data.token, data.refreshToken)
 
         // Si on est sur une page auth → rediriger vers index

@@ -13,12 +13,38 @@ const profileForm = reactive<UpdatePersonRequest>({
   birthday:  '',
 })
 
+const birthDay   = ref('')
+const birthMonth = ref('')
+const birthYear  = ref('')
+
+const currentYear = new Date().getFullYear()
+const years = Array.from({ length: 100 }, (_, i) => currentYear - 15 - i)
+
+const isBirthdayValid = computed(() => {
+  if (!birthDay.value || !birthMonth.value || !birthYear.value) return true // pas encore rempli
+  const date = new Date(`${birthYear.value}-${birthMonth.value}-${birthDay.value}`)
+  return !isNaN(date.getTime()) &&
+      date.getDate() === parseInt(birthDay.value) &&
+      date.getMonth() + 1 === parseInt(birthMonth.value)
+})
+
+watch([birthDay, birthMonth, birthYear], () => {
+  if (birthDay.value && birthMonth.value && birthYear.value) {
+    profileForm.birthday = `${birthYear.value}-${birthMonth.value}-${birthDay.value}`
+  }
+})
+
 watch(person, (val) => {
   if (val?.profile) {
     profileForm.firstname = val.profile.firstname
     profileForm.lastname  = val.profile.lastname
     profileForm.phone     = val.profile.phone
-    profileForm.birthday  = val.profile.birthday?.slice(0, 10) ?? ''
+    if (val.profile.birthday) {
+      const parts = val.profile.birthday.slice(0, 10).split('-')
+      birthYear.value  = parts[0] ?? ''
+      birthMonth.value = parts[1] ?? ''
+      birthDay.value   = parts[2] ?? ''
+    }
   }
 }, { immediate: true })
 
@@ -26,21 +52,17 @@ const loading = ref(false)
 const success = ref(false)
 const error   = ref('')
 
-const maxDate = new Date()
-maxDate.setFullYear(maxDate.getFullYear() - 15)
-
-const birthdayDate = computed({
-  get: () => profileForm.birthday ? new Date(profileForm.birthday) : null,
-  set: (val: Date | null) => {
-    if (!val) return
-    profileForm.birthday = val.toISOString().slice(0, 10)
-  }
-})
-
 const handleSubmit = async () => {
   loading.value = true
   success.value = false
   error.value   = ''
+
+  if (!isBirthdayValid.value) {
+    error.value = 'La date de naissance est invalide.'
+    loading.value = false
+    return
+  }
+
   try {
     await $fetch(hasProfile.value ? `/api/persons/${userId.value}` : '/api/persons', {
       method: hasProfile.value ? 'PATCH' : 'POST',
@@ -109,22 +131,33 @@ const handleSubmit = async () => {
 
     <div class="space-y-1">
       <label class="text-sm font-medium text-gray-700">Date de naissance</label>
-      <VDatePicker
-          v-model="birthdayDate"
-          :max-date="maxDate"
-          mode="date"
-          :popover="{ visibility: 'click', absolute: 'e'}"
-      >
-        <template #default="{ inputValue, inputEvents }">
-          <input
-              :value="inputValue"
-              v-on="inputEvents"
-              placeholder="JJ/MM/AAAA"
-              readonly
-              class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition cursor-pointer"
-          />
-        </template>
-      </VDatePicker>
+      <div class="flex gap-2">
+        <select
+            v-model="birthDay"
+            class="flex-1 border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+        >
+          <option value="">Jour</option>
+          <option v-for="d in 31" :key="d" :value="String(d).padStart(2, '0')">{{ d }}</option>
+        </select>
+        <select
+            v-model="birthMonth"
+            class="flex-1 border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+        >
+          <option value="">Mois</option>
+          <option
+              v-for="(m, i) in ['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre']"
+              :key="i"
+              :value="String(i + 1).padStart(2, '0')"
+          >{{ m }}</option>
+        </select>
+        <select
+            v-model="birthYear"
+            class="flex-1 border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+        >
+          <option value="">Année</option>
+          <option v-for="y in years" :key="y" :value="String(y)">{{ y }}</option>
+        </select>
+      </div>
     </div>
 
     <p v-if="error" class="text-xs text-red-500">{{ error }}</p>

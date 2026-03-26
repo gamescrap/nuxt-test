@@ -1,5 +1,6 @@
 <script setup lang="ts">
 const route = useRoute()
+const { resetPassword } = useAuth()
 const token = route.query.token as string
 
 const form = reactive({ newPassword: '', confirmPassword: '' })
@@ -13,18 +14,13 @@ if (!token) {
 
 const handleSubmit = async () => {
   error.value = ''
-
   if (form.newPassword !== form.confirmPassword) {
     error.value = 'Les mots de passe ne correspondent pas.'
     return
   }
-
   loading.value = true
   try {
-    await $fetch('/api/auth/reset-password', {
-      method: 'POST',
-      body: { token, newPassword: form.newPassword }
-    })
+    await resetPassword(token, form.newPassword)
     success.value = true
   } catch (e: any) {
     error.value = getErrorMessage(e)

@@ -1,4 +1,5 @@
-import type {Driver} from "#shared/types/driver";
+import type {Vehicle} from "#shared/types/vehicle";
+import type {Person} from "#shared/types/person";
 import type {Reservation} from "#shared/types/reservation";
 import type {Address} from "#shared/types/address";
 
@@ -14,7 +15,8 @@ export interface Trip {
     updatedAt: string
     departureAddress: Address
     arrivingAddress: Address
-    driver: Driver
+    driver: Person
+    vehicle?: Vehicle | null
     reservations: Reservation[]
 }
 
@@ -35,5 +37,22 @@ export interface TripFilters {
     arrivalCity?: string
     startingCity?: string
     tripDate?: string
+    fromHour?: string
     isUpcoming?: boolean
+}
+
+export interface TripRequest {
+    tripDatetime: string
+    availableSeats: number
+    smokingAllowed: boolean
+    departureAddressId: number
+    arrivingAddressId: number
+}
+
+export interface TripUpdateRequest {
+    tripDatetime?: string
+    availableSeats?: number
+    smokingAllowed?: boolean
+    departureAddressId?: number
+    arrivingAddressId?: number
 }
