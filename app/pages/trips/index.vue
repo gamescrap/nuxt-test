@@ -1,11 +1,22 @@
 <script setup lang="ts">
-const { isAuthenticated, handleAuthError } = useAuth()
+const { isAuthenticated, handleAuthError, roles } = useAuth()
 const { fetchDriverTrips } = useTrips()
 
 const { data: myTrips, error, refresh: refreshTrips, pending } = await fetchDriverTrips()
 
 const activeTab = ref<'upcoming' | 'past'>('upcoming')
 const showTrips = ref(true)
+const showDriverModal = ref(false)
+
+const isDriver = computed(() => roles.value.includes('ROLE_DRIVER'))
+
+const handleNewTrip = () => {
+  if (!isDriver.value) {
+    showDriverModal.value = true
+    return
+  }
+  navigateTo('/trips/create')
+}
 
 const allTrips = computed(() => {
   return (myTrips.value ?? []).map(t => ({ ...t, role: 'driver' as const }))
@@ -37,8 +48,11 @@ const handleRefresh = async () => {
 
       <div class="flex items-center justify-between">
         <h1 class="text-xl font-semibold text-gray-900">Mes trajets</h1>
-        <button @click="handleRefresh" class="text-sm text-blue-600 hover:text-blue-800 transition-colors">
-          Actualiser
+        <button
+            @click="handleNewTrip"
+            class="bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg px-4 py-2 transition-colors"
+        >
+          + Nouveau trajet
         </button>
       </div>
 
@@ -89,4 +103,34 @@ const handleRefresh = async () => {
 
     </div>
   </main>
+
+  <Teleport to="body">
+    <Transition name="modal">
+      <div v-if="showDriverModal" class="fixed inset-0 z-50 flex items-center justify-center px-4">
+        <div class="absolute inset-0 bg-black/40" @click="showDriverModal = false" />
+        <div class="relative bg-white rounded-2xl shadow-xl p-6 w-full max-w-sm space-y-4">
+          <h3 class="text-base font-semibold text-gray-900">Profil conducteur requis</h3>
+          <p class="text-sm text-gray-500">
+            Pour créer un trajet, vous devez compléter votre profil et renseigner votre véhicule.
+          </p>
+          <div class="flex gap-3 pt-2">
+            <NuxtLink
+                to="/account"
+                @click="showDriverModal = false"
+                class="flex-1 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg py-2.5 transition-colors text-center"
+            >
+              Compléter mon profil
+            </NuxtLink>
+            <button
+                type="button"
+                @click="showDriverModal = false"
+                class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm font-medium rounded-lg py-2.5 transition-colors"
+            >
+              D'accord
+            </button>
+          </div>
+        </div>
+      </div>
+    </Transition>
+  </Teleport>
 </template>

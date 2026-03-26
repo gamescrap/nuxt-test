@@ -2,7 +2,7 @@ import type { Vehicle, VehicleRequest, Brand } from '#shared/types/vehicle'
 
 export const useVehicle = () => {
     const requestFetch = useRequestFetch()
-    const { isAuthenticated, reloadIfUnauthenticated, handleAuthError } = useAuth()
+    const { isAuthenticated, reloadIfUnauthenticated, handleAuthError, refreshSession } = useAuth()
 
     // ─── State ───────────────────────────────────────────────────────────────
     const { data: vehicle, refresh: refreshVehicle } = useAsyncData(
@@ -41,11 +41,13 @@ export const useVehicle = () => {
             await $fetch('/api/vehicles', { method: 'POST', body })
         }
         await refreshVehicle()
+        await refreshSession()
     }
 
     const deleteVehicle = async (vehicleId: number) => {
         await $fetch(`/api/vehicles/${vehicleId}`, { method: 'DELETE' })
         await refreshVehicle()
+        await refreshSession()
     }
 
     // ─── Expose ─────────────────────────────────────────────────────────────
