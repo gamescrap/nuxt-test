@@ -13,8 +13,14 @@ const params: TripFilters = {
 
 const { data: trips, pending } = fetchTrips(params)
 
-const toggleLoading = ref<number | null>(null)
-const toggleError = ref('')
+const sortedTrips = computed(() => {
+  const now = new Date()
+  const all = (trips.value ?? []).filter(r => r != null)
+
+  return all
+      .filter(r => r.tripStatus === 'PLANNED' && new Date(r.tripDatetime) > now)
+      .sort((a, b) => new Date(b.tripDatetime).getTime() - new Date(a.tripDatetime).getTime())
+})
 </script>
 
 <template>
@@ -40,13 +46,13 @@ const toggleError = ref('')
         Chargement...
       </p>
 
-      <p v-else-if="!trips?.length" class="text-sm text-gray-500 text-center py-8">
+      <p v-else-if="!sortedTrips?.length" class="text-sm text-gray-500 text-center py-8">
         Aucun trajet trouvé pour ces critères.
       </p>
 
       <ul v-else class="space-y-3">
         <NuxtLink
-            v-for="(trip, index) in trips"
+            v-for="(trip, index) in sortedTrips"
             :key="trip.id"
             :to="`/search/${trip.id}`"
             class="block"
