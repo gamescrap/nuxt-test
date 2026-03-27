@@ -15,10 +15,13 @@ const { data: trips, pending } = fetchTrips(params)
 
 const sortedTrips = computed(() => {
   const now = new Date()
-  const all = (trips.value ?? []).filter(r => r != null)
+  const all = (trips.value ?? []).filter(r => r != null).map(t => ({
+    ...t,
+    role: 'passenger' as const
+  }))
 
   return all
-      .filter(r => r.tripStatus === 'PLANNED' && new Date(r.tripDatetime) > now)
+      .filter(r => r.tripStatus === 'PLANNED' && new Date(r.tripDatetime) > now && r.driver.id != userId.value)
       .sort((a, b) => new Date(b.tripDatetime).getTime() - new Date(a.tripDatetime).getTime())
 })
 </script>
@@ -57,7 +60,7 @@ const sortedTrips = computed(() => {
             :to="`/search/${trip.id}`"
             class="block"
         >
-          <TripMinimalCard :trip="trip" :index="index" />
+          <TripMinimalCard :trip="trip" :index="index" :role="trip.role"/>
         </NuxtLink>
       </ul>
 
