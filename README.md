@@ -1,6 +1,6 @@
 # nuxt-test
 
-Application Nuxt.js containerisée avec Docker, déployée sur Clever Cloud.
+Application Nuxt.js. Documentation technique : https://golden-papyrus-339.notion.site/Soutenance-5-314cb94bacbc80ac8400f230ad37b0c6?pvs=74
 
 ## Prérequis
 

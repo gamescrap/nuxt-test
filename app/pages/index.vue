@@ -1,5 +1,5 @@
 <script setup lang="ts">
-const { isAuthenticated, handleAuthError } = useAuth()
+const { userId ,isAuthenticated, handleAuthError } = useAuth()
 const { fetchMyTrips } = useTrips()
 
 const { data: myTrips, error, refresh: refreshTrips, pending } = await fetchMyTrips()
@@ -29,6 +29,10 @@ const handleRefresh = async () => {
   await nextTick()
   showTrips.value = true
 }
+
+const isMyTrip = (driverId: number | null) => {
+  return driverId === userId.value
+}
 </script>
 
 <template>
@@ -54,7 +58,7 @@ const handleRefresh = async () => {
         <NuxtLink
             v-for="(trip, index) in sortedTrips"
             :key="trip.id"
-            :to="`/reservations/${trip.id}`"
+            :to="isMyTrip(trip.driver.id) ? `/reservations/${trip.id}` : `/trips/${trip.id}`"
             class="block"
         >
           <TripMinimalCard :trip="trip" :index="index" :role="trip.role" />

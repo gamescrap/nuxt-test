@@ -1,7 +1,0 @@
-services:
-  nuxt:
-    build: .
-    ports:
-      - "3000:8080"
-    env_file:
-      - .env.docker
