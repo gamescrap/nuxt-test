@@ -11,10 +11,12 @@ const sortedTrips = computed(() => {
     role: 'driver' as const
   }))
 
-  const passenger = (myTrips.value?.passenger ?? []).map(t => ({
-    ...t.trip,
-    role: 'passenger' as const
-  }))
+  const passenger = (myTrips.value?.passenger ?? [])
+      .filter(t => t.reservationStatus == 'CONFIRMED')
+      .map(t => ({
+        ...t.trip,
+        role: 'passenger' as const
+      }))
 
   return [...driver, ...passenger]
       .filter(t => t.tripStatus === 'PLANNED')
@@ -58,7 +60,7 @@ const isMyTrip = (driverId: number | null) => {
         <NuxtLink
             v-for="(trip, index) in sortedTrips"
             :key="trip.id"
-            :to="isMyTrip(trip.driver.id) ? `/reservations/${trip.id}` : `/trips/${trip.id}`"
+            :to="isMyTrip(trip.driver.id) ? `/trips/${trip.id}` : `/reservations/${trip.id}`"
             class="block"
         >
           <TripMinimalCard :trip="trip" :index="index" :role="trip.role" />

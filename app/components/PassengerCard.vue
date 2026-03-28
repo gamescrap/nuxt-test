@@ -1,4 +1,5 @@
 <script setup lang="ts">
+const { userId } = useAuth()
 const { cancelReservation } = useTrips()
 
 const props = defineProps<{
@@ -27,7 +28,7 @@ const handleCancel = async () => {
   <div class="bg-white rounded-xl border border-gray-200 p-4 flex items-center justify-between gap-3">
 
     <NuxtLink
-        :to="`/contact/${reservation.passenger.id}`"
+        :to="(reservation.passenger.id != userId && reservation.passenger.status === 'ACTIVE') ? `/contact/${reservation.passenger.id}` : undefined"
         class="flex items-center gap-3 flex-1 min-w-0"
     >
       <!-- Avatar initiales -->
